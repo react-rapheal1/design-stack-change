@@ -1,38 +1,36 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
     AlertCircle,
+    ArrowDown,
+    Bell02,
     Check,
     CheckCircle,
     ChevronDown,
     ChevronRight,
     ChevronSelectorVertical,
+    ClipboardCheck,
     Clock,
+    DotsVertical,
+    Edit04,
+    Eye,
     FilterLines,
     HelpCircle,
     HomeLine,
-    LayersTwo01,
-    LogOut01,
-    Menu01,
-    MessageSmileCircle,
+    RefreshCw03,
     SearchLg,
     Settings01,
     ShoppingBag01,
-    ShoppingCart01,
-    User01,
-    UserPlus01,
-    Users01,
     XCircle,
     XClose,
-    Zap,
 } from "@untitledui/icons";
-import { Button as AriaButton, DialogTrigger, Popover } from "react-aria-components";
+import { orders, countryMeta, type OrderStatus, type OrderType, type SignatureStatus } from "./data";
 import { Input } from "@/components/base/input/input";
 import { Tabs } from "@/components/application/tabs/tabs";
 import { Button } from "@/components/base/buttons/button";
 import { Badge } from "@/components/base/badges/badges";
-import { Avatar } from "@/components/base/avatar/avatar";
 import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
 import { PaginationCardDefault } from "@/components/application/pagination/pagination";
 import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/modal";
@@ -60,33 +58,6 @@ const navItems = [
     { label: "Catalogs", href: "#" },
     { label: "Employees", href: "#" },
     { label: "All Equipments", href: "#" },
-];
-
-const dropdownMenuItems = [
-    {
-        items: [
-            { label: "View profile", icon: User01, shortcut: "⌘K→P" },
-            { label: "Settings", icon: Settings01, shortcut: "⌘S" },
-            { label: "Keyboard shortcuts", icon: Zap, shortcut: "?/" },
-        ],
-    },
-    {
-        items: [
-            { label: "Company profile", icon: HomeLine, shortcut: "" },
-            { label: "Team", icon: Users01, shortcut: "" },
-            { label: "Invite colleagues", icon: UserPlus01, shortcut: "" },
-        ],
-    },
-    {
-        items: [
-            { label: "Changelog", icon: LayersTwo01, shortcut: "" },
-            { label: "Support", icon: MessageSmileCircle, shortcut: "" },
-            { label: "API", icon: HelpCircle, shortcut: "" },
-        ],
-    },
-    {
-        items: [{ label: "Log out", icon: LogOut01, shortcut: "⌥⇧Q" }],
-    },
 ];
 
 // ---------------------------------------------------------------------------
@@ -358,213 +329,317 @@ function calculateBudgetTotal(request: CustomDeviceRequest): { total: number; is
 }
 
 // ---------------------------------------------------------------------------
-// Header Navigation
+// Orders Table — Badge Components
 // ---------------------------------------------------------------------------
 
-function HeaderNavigation() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+function OrderStatusBadge({ status }: { status: OrderStatus }) {
+    const config: Record<OrderStatus, { label: string; style: string; icon: React.ComponentType<{ className?: string }> }> = {
+        pending: {
+            label: "Pending",
+            style: "bg-[#f4f3ff] text-[#5925dc] ring-[#d9d6fe]",
+            icon: RefreshCw03,
+        },
+        "verification-pending": {
+            label: "Verification pending",
+            style: "bg-[#fef6ee] text-[#b93815] ring-[#f9dbaf]",
+            icon: ClipboardCheck,
+        },
+        "in-progress": {
+            label: "In progress",
+            style: "bg-[#fffaeb] text-[#b54708] ring-[#fedf89]",
+            icon: RefreshCw03,
+        },
+        completed: {
+            label: "Completed",
+            style: "bg-[#ecfdf3] text-[#067647] ring-[#abefc6]",
+            icon: CheckCircle,
+        },
+    };
+
+    const tooltips: Record<OrderStatus, string> = {
+        pending: "This order has been placed and is awaiting processing.",
+        "verification-pending": "Employees need to verify their delivery information. If not verified within 24 hours, the order will proceed automatically.",
+        "in-progress": "The order is currently being processed and items are being prepared.",
+        completed: "All items in this order have been successfully delivered.",
+    };
+
+    const { label, style, icon: Icon } = config[status];
 
     return (
-        <header className="relative w-full border-b border-[#475467] bg-primary-solid">
-            <div className="flex h-[72px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
-                {/* Left: Logo + Nav */}
-                <div className="flex items-center gap-4">
-                    <a href="/" aria-label="Go to homepage">
-                        <RaydaLogo variant="white" />
-                    </a>
+        <Tooltip title={tooltips[status]} placement="top">
+            <TooltipTrigger>
+                <span className={`inline-flex cursor-default items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${style}`}>
+                    <Icon className="size-3" />
+                    {label}
+                </span>
+            </TooltipTrigger>
+        </Tooltip>
+    );
+}
 
-                    <nav className="hidden lg:block">
-                        <ul className="flex items-center gap-1">
-                            {navItems.map((item) => (
-                                <li key={item.label}>
-                                    <a
-                                        href={item.href}
-                                        className={cx(
-                                            "rounded-md px-3 py-2 text-sm font-semibold text-white transition duration-100 ease-linear",
-                                            item.current ? "bg-[#344054]" : "hover:bg-white/10",
-                                        )}
-                                    >
-                                        {item.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                </div>
+function OrderTypeBadge({ type }: { type: OrderType }) {
+    const tooltips: Record<OrderType, string> = {
+        onboarding: "Equipment is being set up and delivered to a new or existing employee.",
+        "off-boarding": "Equipment is being collected and returned from a departing employee.",
+    };
+    const label = type === "onboarding" ? "Onboarding" : "Off-boarding";
+    const style =
+        type === "onboarding"
+            ? "border-[#079455] text-[#067647]"
+            : "border-[#535862] text-[#414651]";
 
-                {/* Right: Actions + Avatar */}
-                <div className="flex items-center gap-4">
-                    <div className="hidden gap-1 sm:flex">
-                        <a
-                            href="#"
-                            aria-label="Settings"
-                            className="flex items-center justify-center rounded-md p-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
-                            <Settings01 className="size-5" />
-                        </a>
-                        <a
-                            href="#"
-                            aria-label="Shopping cart"
-                            className="flex items-center justify-center rounded-md p-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
-                            <ShoppingCart01 className="size-5" />
-                        </a>
-                    </div>
+    return (
+        <Tooltip title={tooltips[type]} placement="top">
+            <TooltipTrigger>
+                <span className={`inline-flex cursor-default items-center rounded-full border-[1.5px] px-2 py-0.5 text-xs font-medium ${style}`}>
+                    {label}
+                </span>
+            </TooltipTrigger>
+        </Tooltip>
+    );
+}
 
-                    {/* Avatar with Dropdown (desktop) */}
-                    <div className="hidden lg:block">
-                        <DialogTrigger>
-                            <AriaButton
-                                className={({ isFocused }) =>
-                                    cx(
-                                        "cursor-pointer rounded-full outline-none transition",
-                                        isFocused && "ring-4 ring-[#e6efff]",
-                                    )
-                                }
-                            >
-                                <Avatar
-                                    alt="Olivia Rhye"
-                                    initials="OR"
-                                    size="md"
-                                    contrastBorder={false}
-                                    className="size-10 bg-[#e6efff] text-sm font-semibold text-[#003999]"
-                                />
-                            </AriaButton>
-                            <Popover
-                                placement="bottom right"
-                                offset={8}
-                                className={({ isEntering, isExiting }) =>
-                                    cx(
-                                        "z-50 will-change-transform",
-                                        isEntering && "duration-200 ease-out animate-in fade-in slide-in-from-top-1",
-                                        isExiting && "duration-150 ease-in animate-out fade-out slide-out-to-top-1",
-                                    )
-                                }
-                            >
-                                <AvatarDropdownMenu />
-                            </Popover>
-                        </DialogTrigger>
-                    </div>
+function OrderSignatureBadge({ sig }: { sig: SignatureStatus }) {
+    const config: Record<SignatureStatus, { label: string; style: string }> = {
+        "not-required": { label: "Not required", style: "bg-[#fafafa] text-[#414651] ring-[#e9eaeb]" },
+        "partial-required": { label: "Partial required", style: "bg-[#f4f3ff] text-[#5925dc] ring-[#d9d6fe]" },
+        required: { label: "Signature required", style: "bg-[#e7f0ff] text-[#0948b5] ring-[#8fb9ff]" },
+    };
 
-                    {/* Mobile menu button */}
-                    <button
-                        type="button"
-                        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                        className="flex items-center justify-center rounded-md p-2 text-white transition hover:bg-white/10 lg:hidden"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    >
-                        {mobileMenuOpen ? <XClose className="size-6" /> : <Menu01 className="size-6" />}
-                    </button>
-                </div>
-            </div>
+    const tooltips: Record<SignatureStatus, string> = {
+        "not-required": "No signature is needed for delivery. Items will be left at the delivery address.",
+        "partial-required": "Some items in this order require a signature, others do not.",
+        required: "A recipient signature is required upon delivery for all items in this order.",
+    };
 
-            {/* Mobile navigation overlay */}
-            {mobileMenuOpen && (
-                <div className="absolute inset-x-0 top-[72px] z-50 border-b border-[#475467] bg-primary-solid lg:hidden">
-                    <nav className="flex flex-col px-4 pb-4 pt-2 sm:px-6">
-                        <ul className="flex flex-col gap-1">
-                            {navItems.map((item) => (
-                                <li key={item.label}>
-                                    <a
-                                        href={item.href}
-                                        className={cx(
-                                            "block rounded-md px-3 py-2.5 text-sm font-semibold text-white transition duration-100 ease-linear",
-                                            item.current ? "bg-[#344054]" : "hover:bg-white/10",
-                                        )}
-                                    >
-                                        {item.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+    const { label, style } = config[sig];
 
-                        {/* Divider */}
-                        <div className="my-3 h-px bg-[#475467]" />
-
-                        {/* Mobile-only actions */}
-                        <div className="flex flex-col gap-1 sm:hidden">
-                            <a
-                                href="#"
-                                className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                            >
-                                <Settings01 className="size-5 text-white/70" />
-                                Settings
-                            </a>
-                            <a
-                                href="#"
-                                className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                            >
-                                <ShoppingCart01 className="size-5 text-white/70" />
-                                Shopping cart
-                            </a>
-                        </div>
-
-                        {/* User info */}
-                        <div className="mt-3 flex items-center gap-3 rounded-md px-3 py-2.5">
-                            <Avatar
-                                alt="Olivia Rhye"
-                                initials="OR"
-                                size="md"
-                                contrastBorder={false}
-                                className="size-10 bg-[#e6efff] text-sm font-semibold text-[#003999]"
-                            />
-                            <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-white">Olivia Rhye</p>
-                                <p className="truncate text-sm text-[#98a2b3]">olivia@rayda.co</p>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            )}
-        </header>
+    return (
+        <Tooltip title={tooltips[sig]} placement="top">
+            <TooltipTrigger>
+                <span className={`inline-flex cursor-default items-center rounded-md px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset ${style}`}>
+                    {label}
+                </span>
+            </TooltipTrigger>
+        </Tooltip>
     );
 }
 
 // ---------------------------------------------------------------------------
-// Avatar Dropdown Menu
+// Orders Table — Row Actions
 // ---------------------------------------------------------------------------
 
-function AvatarDropdownMenu() {
+function OrderRowActions({ orderId }: { orderId: string }) {
+    const [open, setOpen] = useState(false);
+
     return (
-        <div className="w-60 overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-[#eaecf0]">
-            {/* User info header */}
-            <div className="border-b border-[#eaecf0] px-4 py-3">
-                <div className="flex items-center gap-3">
-                    <Avatar
-                        alt="Olivia Rhye"
-                        initials="OR"
-                        size="md"
-                        status="online"
-                        contrastBorder={false}
-                        className="size-10 bg-[#e6efff] text-sm font-semibold text-[#003999]"
-                    />
-                    <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#344054]">Olivia Rhye</p>
-                        <p className="truncate text-sm text-[#475467]">olivia@rayda.co</p>
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                onBlur={() => setTimeout(() => setOpen(false), 150)}
+                className="flex size-8 items-center justify-center rounded-md text-fg-tertiary hover:bg-bg-primary_hover"
+            >
+                <DotsVertical className="size-5" />
+            </button>
+
+            {open && (
+                <div className="absolute right-0 top-9 z-20 w-64 overflow-hidden rounded-lg border border-secondary bg-white shadow-[0px_12px_16px_-4px_rgba(16,24,40,0.08),0px_4px_6px_-2px_rgba(16,24,40,0.03)]">
+                    <Link
+                        href={`/orders/${orderId}`}
+                        className="flex items-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-secondary hover:bg-bg-primary_hover"
+                    >
+                        <Eye className="size-4 shrink-0 text-fg-tertiary" />
+                        View order
+                    </Link>
+                    <button
+                        type="button"
+                        className="flex w-full items-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-primary hover:bg-bg-primary_hover"
+                    >
+                        <Edit04 className="size-4 shrink-0 text-fg-tertiary" />
+                        Enable signature requirement
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Orders Table
+// ---------------------------------------------------------------------------
+
+type OrderSortKey = "id" | "date" | "status" | "total" | "employeeCount" | "type" | "signature" | "country";
+
+function OrdersTable() {
+    const [sortKey, setSortKey] = useState<OrderSortKey>("id");
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+    function handleOrderSort(key: OrderSortKey) {
+        if (sortKey === key) {
+            setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        } else {
+            setSortKey(key);
+            setSortDir("asc");
+        }
+    }
+
+    const sortedOrders = [...orders].sort((a, b) => {
+        let aVal: string | number = "";
+        let bVal: string | number = "";
+        switch (sortKey) {
+            case "total":
+                aVal = parseFloat(a.total.replace(/[$,]/g, ""));
+                bVal = parseFloat(b.total.replace(/[$,]/g, ""));
+                break;
+            case "employeeCount":
+                aVal = a.employeeCount;
+                bVal = b.employeeCount;
+                break;
+            case "date":
+                aVal = new Date(a.date).getTime();
+                bVal = new Date(b.date).getTime();
+                break;
+            case "country":
+                aVal = countryMeta[a.country].name;
+                bVal = countryMeta[b.country].name;
+                break;
+            default:
+                aVal = a[sortKey as keyof typeof a] as string;
+                bVal = b[sortKey as keyof typeof b] as string;
+        }
+        if (typeof aVal === "number" && typeof bVal === "number") {
+            return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+        }
+        return sortDir === "asc"
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
+    });
+
+    const colHeaders: { key: OrderSortKey; label: string; help?: string }[] = [
+        { key: "id", label: "Order ID" },
+        { key: "date", label: "Order date" },
+        { key: "status", label: "Order status", help: "The current processing status of this order." },
+        { key: "total", label: "Total amount" },
+        { key: "employeeCount", label: "Employees", help: "Number of employees included in this order." },
+        { key: "type", label: "Type", help: "Whether this order is for onboarding new employees or off-boarding departing ones." },
+        { key: "signature", label: "Signature", help: "Whether a recipient signature is required at the time of delivery." },
+        { key: "country", label: "Country" },
+    ];
+
+    return (
+        <div className="overflow-hidden rounded-xl border border-secondary bg-white shadow-[0px_1px_3px_rgba(16,24,40,0.1),0px_1px_2px_rgba(16,24,40,0.06)]">
+            <table className="w-full border-collapse">
+                <thead>
+                    <tr className="border-b border-secondary bg-bg-secondary">
+                        {colHeaders.map(({ key, label, help }) => (
+                            <th key={key} className="px-6 py-3 text-left text-xs font-semibold text-tertiary">
+                                <div className="inline-flex items-center gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOrderSort(key)}
+                                        className="inline-flex items-center gap-1 whitespace-nowrap hover:text-secondary"
+                                    >
+                                        {label}
+                                        {sortKey === key ? (
+                                            <ArrowDown className={`size-3 stroke-[3px] text-tertiary ${sortDir === "asc" ? "rotate-180" : ""}`} />
+                                        ) : (
+                                            <ChevronSelectorVertical size={12} strokeWidth={3} className="text-tertiary" />
+                                        )}
+                                    </button>
+                                    {help && (
+                                        <Tooltip title={help} placement="top">
+                                            <TooltipTrigger>
+                                                <HelpCircle className="size-3.5 cursor-default text-fg-quaternary" />
+                                            </TooltipTrigger>
+                                        </Tooltip>
+                                    )}
+                                </div>
+                            </th>
+                        ))}
+                        <th className="w-12 px-6 py-3" />
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedOrders.map((order) => {
+                        const { flag: Flag, name } = countryMeta[order.country];
+                        return (
+                            <tr key={order.id} className="border-b border-secondary last:border-0 hover:bg-bg-primary_hover">
+                                <td className="px-6 py-4">
+                                    <Link
+                                        href={`/orders/${order.id}`}
+                                        className="whitespace-nowrap text-sm font-medium text-primary hover:text-brand-secondary hover:underline"
+                                    >
+                                        {order.id}
+                                    </Link>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-sm text-tertiary">{order.date}</td>
+                                <td className="px-6 py-4"><OrderStatusBadge status={order.status} /></td>
+                                <td className="px-6 py-4 text-sm text-tertiary">{order.total}</td>
+                                <td className="px-6 py-4 text-sm text-tertiary">{order.employeeCount}</td>
+                                <td className="px-6 py-4"><OrderTypeBadge type={order.type} /></td>
+                                <td className="px-6 py-4"><OrderSignatureBadge sig={order.signature} /></td>
+                                <td className="max-w-[140px] px-6 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <Flag className="size-6 shrink-0" />
+                                        <span className="truncate text-sm text-tertiary">{name}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4"><OrderRowActions orderId={order.id} /></td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between border-t border-secondary px-6 py-3">
+                <span className="text-sm text-tertiary">Page 1 of 10</span>
+                <div className="flex gap-2">
+                    <button type="button" className="rounded-lg border border-primary bg-white px-3 py-2 text-sm font-semibold text-secondary shadow-xs hover:bg-bg-primary_hover">Previous</button>
+                    <button type="button" className="rounded-lg border border-primary bg-white px-3 py-2 text-sm font-semibold text-secondary shadow-xs hover:bg-bg-primary_hover">Next</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Header Navigation
+// ---------------------------------------------------------------------------
+
+function HeaderNavigation() {
+    return (
+        <header className="sticky top-0 z-40 flex w-full shrink-0 flex-col items-center border-b border-[#22262f] bg-[#0c0e12]">
+            <div className="flex h-[72px] w-full max-w-[1280px] items-center justify-between px-8">
+                <div className="flex items-center gap-6">
+                    <RaydaLogo variant="white" />
+                    <nav className="flex items-center gap-0.5">
+                        {navItems.map((item) => (
+                            <a
+                                key={item.label}
+                                href={item.href}
+                                className={`rounded-md px-3 py-2 text-sm font-semibold ${item.current ? "bg-[#22262f] text-[#ececed]" : "text-[#cecfd2] hover:bg-white/5"}`}
+                            >
+                                {item.label}
+                            </a>
+                        ))}
+                    </nav>
+                </div>
+                <div className="flex items-center gap-1">
+                    <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
+                        <Bell02 className="size-5" />
+                    </button>
+                    <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
+                        <Settings01 className="size-5" />
+                    </button>
+                    <div className="relative size-10 shrink-0 cursor-pointer rounded-full bg-[#22262f]">
+                        <span className="absolute inset-0 rounded-full border border-white/[0.12]" />
+                        <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[#94979c]">OR</p>
                     </div>
                 </div>
             </div>
-
-            {/* Menu sections */}
-            {dropdownMenuItems.map((section, sectionIdx) => (
-                <div key={sectionIdx} className="border-b border-[#eaecf0] py-1">
-                    {section.items.map((item) => (
-                        <button
-                            key={item.label}
-                            className="group flex w-full cursor-pointer items-center px-1.5 py-0.5"
-                        >
-                            <div className="flex w-full items-center justify-between rounded-md px-2.5 py-[9px] group-hover:bg-gray-50">
-                                <div className="flex items-center gap-2">
-                                    <item.icon className="size-4 text-[#667085]" />
-                                    <span className="text-sm font-medium text-[#344054]">{item.label}</span>
-                                </div>
-                                <span className="text-xs text-[#667085]">{item.shortcut}</span>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            ))}
-        </div>
+        </header>
     );
 }
 
@@ -574,7 +649,7 @@ function AvatarDropdownMenu() {
 
 function PageHeader() {
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full">
             <div className="flex flex-col gap-5">
                 {/* Title and description */}
                 <div className="flex flex-col gap-1">
@@ -2071,37 +2146,6 @@ function ErrorToast({
 }
 
 // ---------------------------------------------------------------------------
-// Empty Orders Table
-// ---------------------------------------------------------------------------
-
-function EmptyOrdersTable() {
-    return (
-        <TableCard.Root>
-            <div className="flex items-center justify-center overflow-hidden px-8 py-24">
-                <EmptyState size="sm">
-                    <EmptyState.Header pattern="circle">
-                        <EmptyState.FeaturedIcon color="gray" theme="modern-neue" />
-                    </EmptyState.Header>
-
-                    <EmptyState.Content>
-                        <EmptyState.Title>No orders yet</EmptyState.Title>
-                        <EmptyState.Description>
-                            When you place orders, they will appear here. Start by browsing the marketplace or creating a custom device request.
-                        </EmptyState.Description>
-                    </EmptyState.Content>
-
-                    <EmptyState.Footer>
-                        <Button size="md" color="primary" href="/onboard-device">
-                            Browse Marketplace
-                        </Button>
-                    </EmptyState.Footer>
-                </EmptyState>
-            </div>
-        </TableCard.Root>
-    );
-}
-
-// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -2112,11 +2156,12 @@ export default function OrdersPage() {
         <div className="flex min-h-screen flex-col bg-[#fcfcfd]">
             <HeaderNavigation />
 
-            <main className="flex flex-1 flex-col gap-6 pb-12 pt-8 sm:gap-8 sm:pb-24 sm:pt-12">
+            <main className="flex flex-col items-center gap-8 pb-12 pt-8 sm:pb-24 sm:pt-12">
+                <div className="flex w-full max-w-[1280px] flex-col gap-6 px-4 sm:px-6 lg:px-8">
                 <PageHeader />
 
                 {/* Content */}
-                <div className="w-full px-4 sm:px-6 lg:px-8">
+                <div>
                     {/* Tabs */}
                     <div className="mb-6">
                         <Tabs
@@ -2136,10 +2181,11 @@ export default function OrdersPage() {
 
                     {/* Tab Content */}
                     {activeTab === "orders" ? (
-                        <EmptyOrdersTable />
+                        <OrdersTable />
                     ) : (
                         <CustomDeviceRequestsTable />
                     )}
+                </div>
                 </div>
             </main>
         </div>

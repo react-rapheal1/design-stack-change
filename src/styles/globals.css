@@ -2,6 +2,12 @@
 @import "./theme.css";
 @import "./typography.css";
 
+/* Scan the shared source */
+@source "../components/**/*.{js,ts,jsx,tsx}";
+@source "../hooks/**/*.{js,ts,jsx,tsx}";
+@source "../providers/**/*.{js,ts,jsx,tsx}";
+@source "../utils/**/*.{js,ts,jsx,tsx}";
+
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
 @plugin "tailwindcss-animate";
