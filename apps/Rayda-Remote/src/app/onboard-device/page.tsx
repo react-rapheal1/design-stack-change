@@ -307,7 +307,7 @@ function HeaderNavigation() {
 
     return (
         <header className="relative w-full border-b border-[#475467] bg-[#101828]">
-            <div className="mx-auto flex h-[72px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-[72px] w-full items-center justify-between page-px">
                 {/* Left: Logo + Nav */}
                 <div className="flex items-center gap-4">
                     <a href="/" aria-label="Go to homepage">
@@ -515,7 +515,7 @@ function AvatarDropdownMenu() {
 
 function PageHeader() {
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full page-px">
             <div className="flex flex-col gap-5">
                 {/* Title and description */}
                 <div className="flex flex-col gap-1">
@@ -578,7 +578,7 @@ function SelectCountryCard() {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full page-px">
             <div className="flex justify-center">
                 <div className="w-full max-w-[640px] rounded-2xl bg-white px-4 py-8 shadow-lg sm:px-8 sm:py-10">
                     {/* Flag avatars */}

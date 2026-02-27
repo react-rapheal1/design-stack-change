@@ -1,10 +1,59 @@
-## Project Overview
+## Product Overview
+
+**Rayda** is a B2B device procurement and management platform. It connects companies needing IT equipment (laptops, monitors, phones, etc.) with vendors who supply them. The platform handles the full lifecycle: browsing a marketplace, submitting requests for quotes (RFQs), receiving vendor responses, confirming orders, and tracking fulfillment.
+
+### The Four Applications
+
+This monorepo contains 4 Next.js apps that serve different user roles:
+
+| App | Port | Package | Purpose |
+|-----|------|---------|---------|
+| **Rayda Remote** | 3001 | `@rayda/rayda-remote` | Customer-facing portal for device onboarding, marketplace browsing, and order management |
+| **Vendor Portal** | 3002 | `@rayda/vendor-portal` | Vendor/supplier platform for managing incoming orders, RFQs, inventory, and quoting |
+| **Rayda Admin** | 3003 | `@rayda/rayda-admin` | Internal admin dashboard for platform management (coming soon) |
+| **Remote Employees** | 3004 | `@rayda/remote-employees` | Employee self-service portal for device requests and tracking (coming soon) |
+
+### Key Business Domain Concepts
+
+- **Device Management**: Full lifecycle from request to deployment across asset types (laptops, monitors, phones, tablets, accessories)
+- **Marketplace**: Catalog of devices with specs, pricing, availability, and filtering by asset type/state (new, refurbished, used)
+- **RFQ Workflow**: Customers create Requests for Quote → Vendors respond with pricing/alternatives → Customers confirm → Orders fulfilled
+- **Order Statuses**: `pending` → `waiting_for_action` → `confirmed` / `rejected` / `expired`
+- **Multi-country Support**: 195+ countries with per-country budgets, vendor SLAs, and delivery tracking
+- **Vendor Relationships**: Multi-vendor support with individual dashboards, inventory tracking, and quote management
+
+### Current App Pages
+
+**Rayda Remote (3001):**
+- `/onboard-device` — Device onboarding flow with country/location selection
+- `/onboard-device/marketplace` — Device marketplace with filtering by asset type, state, specs, and price
+- `/orders` — Order management dashboard with RFQ tracking, search, filtering, sorting, and pagination
+
+**Vendor Portal (3002):**
+- `/vendor-portal` — Vendor dashboard with order requests table, RFQ management, filtering, slideout detail panels, and quote workflow
+
+**Rayda Admin (3003):** Placeholder — coming soon
+
+**Remote Employees (3004):** Placeholder — coming soon
+
+### Running All Apps
+
+```bash
+# Kill existing processes and start all 4
+lsof -ti:3001,3002,3003,3004 | xargs kill -9 2>/dev/null
+npm run dev:remote & npm run dev:vendor & npm run dev:admin & npm run dev:employees &
+```
+
+## Tech Stack
 
 This is an **Untitled UI React** component library project built with:
 
 - **React 19.1.1** with TypeScript
+- **Next.js 16.1.6** with Turbopack
 - **Tailwind CSS v4.1** for styling
 - **React Aria Components** as the foundation for accessibility and behavior
+- **IBM Plex Sans** via Google Fonts
+- **@untitledui/icons** and **@untitledui/country-flags** for iconography
 
 ## Key Architecture Principles
 
@@ -60,30 +109,44 @@ This applies to all file types including:
 ## Development Commands
 
 ```bash
-# Development
-npm run dev               # Start Vite development server (http://localhost:5173)
-npm run build            # Build for production (TypeScript compilation + Vite build)
+# Run individual apps
+npm run dev:remote        # Rayda Remote (http://localhost:3001)
+npm run dev:vendor        # Vendor Portal (http://localhost:3002)
+npm run dev:admin         # Rayda Admin (http://localhost:3003)
+npm run dev:employees     # Remote Employees (http://localhost:3004)
+
+# Build & check
+npm run build             # Build all apps for production
+npm run type-check        # TypeScript validation
 ```
 
 ## Project Structure
 
-### Application Architecture
+### Monorepo Architecture
 
 ```
-src/
-├── components/
-│   ├── base/              # Core UI components (Button, Input, Select, etc.)
-│   ├── application/       # Complex application components
-│   ├── foundations/       # Design tokens and foundational elements
-│   ├── marketing/         # Marketing-specific components
-│   └── shared-assets/     # Reusable assets and illustrations
-├── hooks/                 # Custom React hooks
-├── pages/                 # Route components
-├── providers/             # React context providers
-├── styles/               # Global styles and theme
-├── types/                # TypeScript type definitions
-└── utils/                # Utility functions
+rayda-monorepo/
+├── apps/
+│   ├── Rayda-Remote/          # Customer portal (port 3001)
+│   ├── Vendor-Portal/         # Vendor portal (port 3002)
+│   ├── Rayda-Admin/           # Admin dashboard (port 3003)
+│   └── Remote-Employees/      # Employee portal (port 3004)
+├── src/                       # Shared code across all apps
+│   ├── components/
+│   │   ├── base/              # Core UI components (Button, Input, Select, etc.)
+│   │   ├── application/       # Complex application components
+│   │   ├── foundations/       # Design tokens and foundational elements
+│   │   ├── marketing/         # Marketing-specific components
+│   │   └── shared-assets/     # Reusable assets and illustrations
+│   ├── hooks/                 # Custom React hooks (useBreakpoint, etc.)
+│   ├── providers/             # React context providers
+│   ├── styles/               # Global styles and theme
+│   ├── types/                # TypeScript type definitions
+│   └── utils/                # Utility functions
+└── packages/                  # Future shared packages
 ```
+
+Each app imports shared components via the `@/*` path alias which maps to `../../src/*`.
 
 ### Component Patterns
 
@@ -132,6 +195,21 @@ interface ButtonProps extends CommonProps, HTMLButtonElement {
 ```
 
 ## Styling Guidelines
+
+### Responsive Page Padding
+
+All page content (except pages with sidebar navigation like Vendor Portal) must use the following responsive horizontal padding:
+
+| Breakpoint | Screen width | Padding |
+|------------|-------------|---------|
+| Mobile | Below 768px | 16px |
+| Tablet / Small Desktop | 768px – 1439px | 32px |
+| Desktop | 1440px and above | 112px |
+
+**Usage:** Apply the `page-px` utility class. This is a custom Tailwind utility defined in each app's `globals.css` that handles all three breakpoints automatically.
+
+**Applies to:** Headers, page headers, content sections, and all horizontally-padded page containers.
+**Does NOT apply to:** Pages using sidebar navigation (e.g. Vendor Portal), internal component padding, or mobile navigation overlays.
 
 ### Tailwind CSS v4.1
 

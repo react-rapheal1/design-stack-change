@@ -280,7 +280,7 @@ function HeaderNavigation() {
 
     return (
         <header className="relative w-full border-b border-[#475467] bg-[#101828]">
-            <div className="mx-auto flex h-[72px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-[72px] w-full items-center justify-between page-px">
                 <div className="flex items-center gap-4">
                     <a href="/" aria-label="Go to homepage">
                         <RaydaLogo variant="white" />
@@ -473,7 +473,7 @@ function AvatarDropdownMenu() {
 
 function MarketplacePageHeader({ countryName }: { countryName: string }) {
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full page-px">
             <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-semibold leading-[32px] text-[#101828]">
@@ -1227,7 +1227,7 @@ function MarketplacePageContent() {
             <main className="flex flex-1 flex-col gap-6 pb-12 pt-8 sm:gap-8 sm:pb-24 sm:pt-12">
                 <MarketplacePageHeader countryName={countryName} />
 
-                <div className="w-full px-4 sm:px-6 lg:px-8">
+                <div className="w-full page-px">
                     {/* Mobile filter toggle */}
                     <div className="mb-4 lg:hidden">
                         <Button

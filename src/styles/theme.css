@@ -49,6 +49,7 @@
     --breakpoint-xxs: 320px;
     /* This must match the breakpoint in Sonner: https://github.com/emilkowalski/sonner/blob/main/src/styles.css */
     --breakpoint-xs: 600px;
+    --breakpoint-2xl: 1440px;
 
     /* RADIUS */
     --radius-none: 0px;
@@ -771,10 +772,10 @@
     --color-avatar-contrast-border: rgb(0 0 0 / 0.08);
     --color-avatar-profile-photo-border: var(--color-white);
     --color-avatar-styles-bg-neutral: rgb(224 224 224);
-    --color-button-destructive-primary-icon: var(--color-error-300);
-    --color-button-destructive-primary-icon_hover: var(--color-error-200);
-    --color-button-primary-icon: var(--color-brand-300);
-    --color-button-primary-icon_hover: var(--color-brand-200);
+    --color-button-destructive-primary-icon: var(--color-white);
+    --color-button-destructive-primary-icon_hover: var(--color-white);
+    --color-button-primary-icon: var(--color-white);
+    --color-button-primary-icon_hover: var(--color-white);
     --color-featured-icon-light-fg-brand: var(--color-brand-600);
     --color-featured-icon-light-fg-error: var(--color-error-600);
     --color-featured-icon-light-fg-gray: var(--color-gray-500);
@@ -1192,10 +1193,10 @@
         --color-avatar-contrast-border: rgb(255 255 255 / 0.12);
         --color-avatar-profile-photo-border: var(--color-gray-950);
         --color-avatar-styles-bg-neutral: rgb(224 224 224 / 1);
-        --color-button-destructive-primary-icon: var(--color-error-300);
-        --color-button-destructive-primary-icon_hover: var(--color-error-200);
-        --color-button-primary-icon: var(--color-brand-300);
-        --color-button-primary-icon_hover: var(--color-brand-200);
+        --color-button-destructive-primary-icon: var(--color-white);
+        --color-button-destructive-primary-icon_hover: var(--color-white);
+        --color-button-primary-icon: var(--color-white);
+        --color-button-primary-icon_hover: var(--color-white);
         --color-featured-icon-light-fg-brand: var(--color-brand-200);
         --color-featured-icon-light-fg-error: var(--color-error-200);
         --color-featured-icon-light-fg-gray: var(--color-gray-200);

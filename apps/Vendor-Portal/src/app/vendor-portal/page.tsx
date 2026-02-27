@@ -25,6 +25,20 @@ import {
     XCircle,
     XClose,
 } from "@untitledui/icons";
+import {
+    FlagAu,
+    FlagCa,
+    FlagDe,
+    FlagFr,
+    FlagGb,
+    FlagIn,
+    FlagJp,
+    FlagKe,
+    FlagNg,
+    FlagSg,
+    FlagUs,
+    FlagZa,
+} from "@untitledui/country-flags";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { Badge } from "@/components/base/badges/badges";
 import { Button } from "@/components/base/buttons/button";
@@ -99,6 +113,7 @@ interface RFQ {
     country: string;
     deliveryAddress: string;
     dueDate: string;
+    createdAt: string;
     budget?: string;
     notes?: string;
 }
@@ -271,7 +286,7 @@ const deviceTemplates = [
 ];
 
 const services = ["Onboarding", "Offboarding", "Storage"] as const;
-const countries = ["United States", "Canada", "United Kingdom", "Germany", "France", "Australia", "Japan", "Singapore"];
+const countries = ["United States", "United Kingdom", "Nigeria", "Germany", "Canada", "South Africa", "Kenya", "India"];
 const slaOptions = ["1-2 working days", "3-5 working days", "5-7 working days", "7-10 working days"];
 
 function generateOrderRequests(count: number): OrderRequest[] {
@@ -325,22 +340,18 @@ function generateOrderRequests(count: number): OrderRequest[] {
     return orders;
 }
 
+// Device templates aligned with Admin RFQ Management data
 const rfqDeviceTemplates = [
-    { name: "MacBook Pro 14\" M3 Pro", assetType: "Laptop", basePrice: 1999 },
+    { name: 'MacBook Pro 14" M3 Pro', assetType: "Laptop", basePrice: 1999 },
     { name: "Dell Precision 5680", assetType: "Laptop", basePrice: 3500 },
     { name: "Lenovo ThinkPad X1 Carbon", assetType: "Laptop", basePrice: 1649 },
-    { name: "LG 27UP850-W 27\" 4K Monitor", assetType: "Monitor", basePrice: 450 },
-    { name: "Dell UltraSharp U3223QE 32\"", assetType: "Monitor", basePrice: 1100 },
-    { name: "Samsung 49\" Odyssey G9", assetType: "Monitor", basePrice: 1299 },
+    { name: 'LG 27UP850-W 27" 4K Monitor', assetType: "Monitor", basePrice: 450 },
+    { name: 'Dell UltraSharp U3223QE 32"', assetType: "Monitor", basePrice: 1100 },
     { name: "Herman Miller Aeron Chair", assetType: "Furniture", basePrice: 1395 },
-    { name: "Fully Jarvis Standing Desk", assetType: "Furniture", basePrice: 750 },
-    { name: "Logitech Rally Bar", assetType: "Conference", basePrice: 2999 },
     { name: "iPhone 15 Pro Max", assetType: "Phone", basePrice: 1199 },
     { name: "Apple AirPods Pro 2", assetType: "Audio", basePrice: 249 },
     { name: "CalDigit TS4 Thunderbolt Dock", assetType: "Accessory", basePrice: 400 },
-    { name: "Razer BlackWidow V4 Pro", assetType: "Peripheral", basePrice: 230 },
-    { name: "Microsoft Surface Pro 9", assetType: "Tablet", basePrice: 1599 },
-    { name: "BenQ ScreenBar Monitor Light", assetType: "Accessory", basePrice: 109 },
+    { name: "Logitech Rally Bar", assetType: "Conference", basePrice: 2999 },
 ];
 
 const addresses = [
@@ -354,45 +365,95 @@ const addresses = [
     "450 Lexington Ave, New York, NY 10017, USA",
 ];
 
-function generateRFQs(count: number): RFQ[] {
+// Anchored reference time for deterministic mock data
+const MOCK_NOW_MS = new Date("2026-02-26T12:00:00.000Z").getTime();
+
+// Seeded random matching Admin portal's data generation
+function seededRandom(seed: number) {
+    let s = seed;
+    return () => {
+        s = (s * 16807) % 2147483647;
+        return (s - 1) / 2147483646;
+    };
+}
+
+function generateRFQs(): RFQ[] {
+    const rand = seededRandom(42); // Same seed as Admin portal
     const rfqList: RFQ[] = [];
-    const baseId = 26700;
 
-    for (let i = 0; i < count; i++) {
-        const numDevices = (i % 3) + 1; // 1-3 devices
+    // Generate 45 RFQs matching Admin portal IDs and device data
+    for (let i = 0; i < 45; i++) {
+        const deviceCount = Math.floor(rand() * 4) + 1;
         const devices: RFQDevice[] = [];
-        const hasBudget = i % 3 !== 0; // 2/3 have full budget, 1/3 have partial or no budget
 
-        for (let j = 0; j < numDevices; j++) {
-            const template = rfqDeviceTemplates[(i + j * 3) % rfqDeviceTemplates.length];
-            const quantity = (i % 5) + 1;
-            const deviceHasBudget = hasBudget || (j === 0 && i % 4 !== 0); // Some devices have budget
+        // Determine budget scenario:
+        // ~50% no budget, ~10% partial, ~40% full (deterministic pattern)
+        const budgetPattern = i % 10; // 0-4: no budget, 5: partial, 6-9: full
+        const noBudget = budgetPattern < 5;
+        const partialBudget = budgetPattern === 5;
+
+        for (let j = 0; j < deviceCount; j++) {
+            const template = rfqDeviceTemplates[Math.floor(rand() * rfqDeviceTemplates.length)];
+            const quantity = Math.floor(rand() * 5) + 1;
 
             const device: RFQDevice = {
                 name: template.name,
                 quantity,
                 assetType: template.assetType,
-                description: `High-quality ${template.assetType.toLowerCase()} for professional use. Includes standard warranty and support.`,
+                description: `${template.assetType} for professional use. Standard warranty and regional support included.`,
             };
 
-            if (deviceHasBudget) {
-                device.unitPrice = template.basePrice + (i * 50) % 500;
+            // Assign budget based on scenario
+            if (noBudget) {
+                // No budget — customer hasn't specified any price expectations
+                // unitPrice stays undefined
+            } else if (partialBudget) {
+                // Partial budget — only some devices have a price
+                if (j === 0) {
+                    device.unitPrice = template.basePrice;
+                }
+                // Other devices left without unitPrice
+            } else {
+                // Full budget
+                device.unitPrice = template.basePrice;
             }
 
             devices.push(device);
         }
 
-        const country = countries[i % countries.length];
+        const country = countries[Math.floor(rand() * countries.length)];
+        const day = Math.floor(rand() * 20) + 1;
+        const dueDateDay = Math.floor(rand() * 28) + 1;
+
+        // Generate createdAt timestamp for 24h response deadline
+        // Distribution: ~11% expired, ~11% critical (≤1h), ~11% warning (≤6h), ~67% fresh
+        const deadlineMod = i % 9;
+        let hoursAgo: number;
+        if (deadlineMod === 0) {
+            hoursAgo = 25 + rand() * 23; // expired: 25–48h ago → filtered out
+        } else if (deadlineMod === 1) {
+            hoursAgo = 23.1 + rand() * 0.7; // critical: 10–54min remaining
+        } else if (deadlineMod === 2) {
+            hoursAgo = 18 + rand() * 5; // warning: 1–6h remaining
+        } else {
+            hoursAgo = rand() * 17; // fresh: 7–24h remaining
+        }
+        const createdAtMs = MOCK_NOW_MS - Math.floor(hoursAgo * 60 * 60 * 1000);
+
         const rfq: RFQ = {
-            id: (baseId + i).toString(),
+            id: `RFQ-${String(26700 + i).padStart(5, "0")}`,
             devices,
             country,
             deliveryAddress: addresses[i % addresses.length],
-            dueDate: `Jan ${(i % 28) + 1}, 2025`,
+            dueDate: `Mar ${dueDateDay}, 2026`,
+            createdAt: new Date(createdAtMs).toISOString(),
         };
 
-        if (i % 3 === 0) {
-            rfq.notes = `Priority request for ${devices[0].assetType.toLowerCase()} deployment. Quick turnaround needed.`;
+        // Some RFQs have notes from the customer
+        if (i % 4 === 0) {
+            rfq.notes = `Priority request — need ${devices[0].assetType.toLowerCase()} deployment within 2 weeks.`;
+        } else if (noBudget && i % 3 === 0) {
+            rfq.notes = "No budget specified. Please quote your best price for bulk order.";
         }
 
         rfqList.push(rfq);
@@ -402,7 +463,7 @@ function generateRFQs(count: number): RFQ[] {
 }
 
 const orderRequests: OrderRequest[] = generateOrderRequests(50);
-const rfqs: RFQ[] = generateRFQs(50);
+const rfqs: RFQ[] = generateRFQs();
 
 // Legacy specific order requests data (commented out - now using generated data)
 const _legacyOrderRequests: OrderRequest[] = [
@@ -1404,29 +1465,27 @@ function DeviceAvatars({ devices }: { devices: Device[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// US Flag Icon (using Untitled UI flags)
+// Country Flag Icon (using @untitledui/country-flags)
 // ---------------------------------------------------------------------------
 
-const countryCodeMap: Record<string, string> = {
-    "United States": "US",
-    "Canada": "CA",
-    "United Kingdom": "GB",
-    "Germany": "DE",
-    "France": "FR",
-    "Australia": "AU",
-    "Japan": "JP",
-    "Singapore": "SG",
+const countryFlagMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+    "United States": FlagUs,
+    "Canada": FlagCa,
+    "United Kingdom": FlagGb,
+    "Germany": FlagDe,
+    "France": FlagFr,
+    "Australia": FlagAu,
+    "Japan": FlagJp,
+    "Singapore": FlagSg,
+    "Nigeria": FlagNg,
+    "South Africa": FlagZa,
+    "Kenya": FlagKe,
+    "India": FlagIn,
 };
 
 function CountryFlag({ country }: { country: string }) {
-    const code = countryCodeMap[country] || "US";
-    return (
-        <img
-            src={`https://www.untitledui.com/images/flags/${code}.svg`}
-            alt={`${country} flag`}
-            className="size-5 shrink-0 rounded-full"
-        />
-    );
+    const FlagIcon = countryFlagMap[country] || FlagUs;
+    return <FlagIcon className="size-5 shrink-0 rounded-full" aria-hidden="true" />;
 }
 
 // ---------------------------------------------------------------------------
@@ -1723,7 +1782,7 @@ function RFQRespondToast({
                                 RFQ response submitted
                             </p>
                             <p className="text-sm text-[#414651]">
-                                Your budget response has been sent to the client for review.
+                                Your response has been sent to the client for review.
                             </p>
                         </div>
 
@@ -1967,10 +2026,10 @@ function AcceptRFQModal({
                             {/* Text */}
                             <div className="flex flex-col gap-1">
                                 <h3 className="text-lg font-semibold text-[#181d27]">
-                                    Accept RFQ budget?
+                                    Accept RFQ?
                                 </h3>
                                 <p className="text-sm text-[#535862]">
-                                    By accepting this RFQ, you confirm that you can fulfill the request at the proposed budget. The client will be notified of your acceptance.
+                                    By accepting this RFQ, you confirm that you can fulfill the request. The client will be notified of your acceptance.
                                 </p>
                             </div>
                         </div>
@@ -1981,7 +2040,7 @@ function AcceptRFQModal({
                                 Cancel
                             </Button>
                             <Button size="lg" color="primary" className="flex-1" onClick={onConfirm}>
-                                Accept Budget
+                                Accept RFQ
                             </Button>
                         </div>
                     </div>
@@ -2022,8 +2081,8 @@ function RespondToBudgetModal({
     devices: RFQDevice[];
     rfqId: string;
 }) {
-    const [responses, setResponses] = useState<DeviceResponseState[]>(() =>
-        devices.map((device) => ({
+    const createDefaultResponses = (devs: RFQDevice[]) =>
+        devs.map((device) => ({
             responseType: "quote" as ResponseType,
             quotePrice: device.unitPrice ? device.unitPrice.toString() : "",
             alternativeSource: "catalog" as AlternativeSource,
@@ -2032,11 +2091,22 @@ function RespondToBudgetModal({
             manualDevicePrice: "",
             manualDeviceSpecs: "",
             unavailableReason: "",
-        }))
-    );
+        }));
 
+    const [responses, setResponses] = useState<DeviceResponseState[]>(() => createDefaultResponses(devices));
     const [expandedDevice, setExpandedDevice] = useState<number | null>(0);
+
+    // Re-sync responses when devices change (different RFQ selected)
+    const prevDevicesRef = useRef(devices);
+    useEffect(() => {
+        if (prevDevicesRef.current !== devices) {
+            setResponses(createDefaultResponses(devices));
+            setExpandedDevice(0);
+            prevDevicesRef.current = devices;
+        }
+    }, [devices]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [vendorNote, setVendorNote] = useState("");
 
     const updateResponse = (index: number, updates: Partial<DeviceResponseState>) => {
         setResponses((prev) =>
@@ -2059,6 +2129,7 @@ function RespondToBudgetModal({
             }))
         );
         setExpandedDevice(0);
+        setVendorNote("");
         onClose();
     };
 
@@ -2176,7 +2247,7 @@ function RespondToBudgetModal({
                                                         {device.name}
                                                     </span>
                                                     <span className="text-xs text-[#535862]">
-                                                        Qty: {device.quantity}{device.unitPrice !== undefined && ` • Budget: ${formatCurrency(device.unitPrice)}/unit`}
+                                                        Qty: {device.quantity}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
@@ -2370,6 +2441,16 @@ function RespondToBudgetModal({
                                         </div>
                                     );
                                 })}
+                            </div>
+
+                            {/* Vendor Note */}
+                            <div className="mt-2">
+                                <TextArea
+                                    label="Additional notes (optional)"
+                                    placeholder="Add any relevant details e.g warranty terms, SLA, etc."
+                                    value={vendorNote}
+                                    onChange={(v) => setVendorNote(v)}
+                                />
                             </div>
                         </div>
 
@@ -3151,10 +3232,7 @@ function RFQFilterDropdown({
         }));
     };
 
-    const hasActiveFilters =
-        localFilters.countries.length > 0 ||
-        localFilters.budgetRange[0] > 0 ||
-        localFilters.budgetRange[1] < 100000;
+    const hasActiveFilters = localFilters.countries.length > 0;
 
     if (!isOpen) return null;
 
@@ -3212,29 +3290,7 @@ function RFQFilterDropdown({
                     </div>
                 </div>
 
-                {/* Budget Range */}
-                <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-[#181d27]">Budget Range</span>
-                        <span className="text-sm text-[#535862]">USD</span>
-                    </div>
-                    <Slider
-                        value={localFilters.budgetRange}
-                        onChange={(value) =>
-                            setLocalFilters((prev) => ({
-                                ...prev,
-                                budgetRange: value as [number, number],
-                            }))
-                        }
-                        minValue={0}
-                        maxValue={100000}
-                        step={1000}
-                    />
-                    <div className="flex items-center justify-between text-sm text-[#535862]">
-                        <span>${localFilters.budgetRange[0].toLocaleString()}</span>
-                        <span>${localFilters.budgetRange[1].toLocaleString()}</span>
-                    </div>
-                </div>
+                {/* Budget Range — hidden from vendors */}
             </div>
 
             {/* Footer */}
@@ -3253,7 +3309,7 @@ function RFQFilterDropdown({
 // ---------------------------------------------------------------------------
 
 type OrderSortField = "id" | "service" | "total" | "country" | "dueDate";
-type RFQSortField = "id" | "budget" | "country";
+type RFQSortField = "id" | "country" | "deadline";
 type SortDirection = "asc" | "desc";
 
 function OrderRequestsTable({
@@ -3611,11 +3667,15 @@ function OrderRequestsTable({
 function RFQDeviceCount({ devices }: { devices: RFQDevice[] }) {
     const totalQuantity = devices.reduce((sum, d) => sum + d.quantity, 0);
 
+    const maxVisible = 3;
+    const remaining = devices.length - maxVisible;
+
     const tooltipTitle = (
         <div className="flex flex-col gap-1">
-            {devices.map((device, i) => (
-                <span key={i}>{truncateDeviceName(device.name)} (×{device.quantity})</span>
+            {devices.slice(0, maxVisible).map((device, i) => (
+                <span key={i}>{truncateDeviceName(device.name)} × {device.quantity}</span>
             ))}
+            {remaining > 0 && <span>+ {remaining} more device{remaining === 1 ? "" : "s"}</span>}
         </div>
     );
 
@@ -3625,6 +3685,77 @@ function RFQDeviceCount({ devices }: { devices: RFQDevice[] }) {
                 <span className="text-sm text-[#181d27] cursor-default">{totalQuantity}</span>
             </TooltipTrigger>
         </Tooltip>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// RFQ Countdown Utilities
+// ---------------------------------------------------------------------------
+
+const RESPONSE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function useCurrentTime(): number {
+    // Use mock anchor so countdowns are consistent with generated data.
+    // The offset from page load simulates real-time ticking.
+    const [offset, setOffset] = useState(0);
+
+    useEffect(() => {
+        const msUntilNextMinute = 60_000 - (Date.now() % 60_000);
+        const start = Date.now();
+        const timeout = setTimeout(() => {
+            setOffset(Date.now() - start);
+        }, msUntilNextMinute);
+
+        const interval = setInterval(() => {
+            setOffset(Date.now() - start);
+        }, 60_000);
+
+        return () => {
+            clearTimeout(timeout);
+            clearInterval(interval);
+        };
+    }, []);
+
+    return MOCK_NOW_MS + offset;
+}
+
+function getRemainingMs(createdAt: string, nowMs: number): number {
+    const remaining = new Date(createdAt).getTime() + RESPONSE_WINDOW_MS - nowMs;
+    // Cap at 24h — time remaining should never exceed the response window
+    return Math.min(remaining, RESPONSE_WINDOW_MS);
+}
+
+function isRFQExpired(createdAt: string, nowMs: number): boolean {
+    return getRemainingMs(createdAt, nowMs) <= 0;
+}
+
+function formatTimeRemaining(createdAt: string, nowMs: number): string {
+    const remainingMs = getRemainingMs(createdAt, nowMs);
+    if (remainingMs <= 0) return "Expired";
+
+    const totalMinutes = Math.floor(remainingMs / 60_000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+
+type DeadlineUrgency = "success" | "warning" | "error";
+
+function getDeadlineUrgency(createdAt: string, nowMs: number): DeadlineUrgency {
+    const remainingMs = getRemainingMs(createdAt, nowMs);
+    if (remainingMs <= 0) return "error";
+    if (remainingMs <= 60 * 60 * 1000) return "error";
+    if (remainingMs <= 6 * 60 * 60 * 1000) return "warning";
+    return "success";
+}
+
+function RFQDeadlineBadge({ createdAt, nowMs }: { createdAt: string; nowMs: number }) {
+    return (
+        <Badge size="sm" type="pill-color" color={getDeadlineUrgency(createdAt, nowMs)}>
+            {formatTimeRemaining(createdAt, nowMs)}
+        </Badge>
     );
 }
 
@@ -3657,6 +3788,7 @@ function RFQDetailsSidebar({
     const [expandedDevice, setExpandedDevice] = useState<number | null>(null);
     const [showDeclineModal, setShowDeclineModal] = useState(false);
     const [showRespondModal, setShowRespondModal] = useState(false);
+    const nowMs = useCurrentTime();
 
     // Keep last valid RFQ for exit animation
     const lastRfqRef = useRef<RFQ | null>(null);
@@ -3670,10 +3802,6 @@ function RFQDetailsSidebar({
     if (!displayRfq) return null;
 
     const totalQuantity = displayRfq.devices.reduce((sum, d) => sum + d.quantity, 0);
-    const devicesWithPrice = displayRfq.devices.filter((d) => d.unitPrice !== undefined);
-    const grandTotal = devicesWithPrice.length > 0
-        ? { total: devicesWithPrice.reduce((sum, d) => sum + (d.unitPrice ?? 0) * d.quantity, 0), isPartial: devicesWithPrice.length < displayRfq.devices.length }
-        : null;
 
     return (
         <>
@@ -3749,24 +3877,12 @@ function RFQDetailsSidebar({
                                                     {/* Details Grid */}
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div className="flex flex-col gap-0.5">
-                                                            <span className="text-xs font-medium text-[#717680]">Budget</span>
-                                                            <span className="text-sm font-medium text-[#181d27]">
-                                                                {device.unitPrice !== undefined ? formatCurrency(device.unitPrice) : "—"}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
                                                             <span className="text-xs font-medium text-[#717680]">Quantity</span>
                                                             <span className="text-sm font-medium text-[#181d27]">{device.quantity}</span>
                                                         </div>
                                                         <div className="flex flex-col gap-0.5">
                                                             <span className="text-xs font-medium text-[#717680]">Asset Type</span>
                                                             <span className="text-sm font-medium text-[#181d27]">{device.assetType}</span>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <span className="text-xs font-medium text-[#717680]">Subtotal</span>
-                                                            <span className="text-sm font-semibold text-[#181d27]">
-                                                                {deviceTotal !== null ? formatCurrency(deviceTotal) : "—"}
-                                                            </span>
                                                         </div>
                                                     </div>
 
@@ -3784,17 +3900,7 @@ function RFQDetailsSidebar({
                                 })}
                             </div>
 
-                            {/* Total Budget */}
-                            {grandTotal !== null && (
-                                <div className="flex items-center justify-between border-t border-[#e9eaeb] px-3 py-3 bg-[#fafafa] rounded-b-xl">
-                                    <span className="text-sm font-medium text-[#414651]">
-                                        Total budget{grandTotal.isPartial && " (partial)"}
-                                    </span>
-                                    <span className="text-sm font-semibold text-[#181d27]">
-                                        {formatCurrency(grandTotal.total)}
-                                    </span>
-                                </div>
-                            )}
+                            {/* Total Budget — hidden from vendors */}
                         </div>
 
                         {/* RFQ Details Card */}
@@ -3804,6 +3910,18 @@ function RFQDetailsSidebar({
                                 <div className="flex items-center gap-1.5">
                                     <CountryFlag country={displayRfq.country} />
                                     <span className="text-sm text-[#535862]">{displayRfq.country}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-sm font-semibold text-[#252b37]">Response Deadline</span>
+                                <div className="flex items-center gap-2">
+                                    <RFQDeadlineBadge createdAt={displayRfq.createdAt} nowMs={nowMs} />
+                                    <span className="text-xs text-[#535862]">
+                                        {isRFQExpired(displayRfq.createdAt, nowMs)
+                                            ? "This RFQ has expired."
+                                            : "Respond within this timeline."}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -3865,26 +3983,17 @@ function RFQDetailsSidebar({
 
 function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) => void; excludeRFQIds?: string[] }) {
     const isMd = useBreakpoint("md");
+    const nowMs = useCurrentTime();
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortField, setSortField] = useState<RFQSortField | null>(null);
-    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+    const [sortField, setSortField] = useState<RFQSortField | null>("deadline");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [currentPage, setCurrentPage] = useState(1);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filters, setFilters] = useState<RFQFilters>(defaultRFQFilters);
     const itemsPerPage = 10;
 
     // Count active filters
-    const activeFilterCount =
-        filters.countries.length +
-        (filters.budgetRange[0] > 0 || filters.budgetRange[1] < 100000 ? 1 : 0);
-
-    const calculateRFQTotal = (rfq: RFQ): { total: number; isPartial: boolean } | null => {
-        const devicesWithPrice = rfq.devices.filter((device) => device.unitPrice !== undefined);
-        if (devicesWithPrice.length === 0) return null;
-        const total = devicesWithPrice.reduce((sum, device) => sum + device.quantity * (device.unitPrice ?? 0), 0);
-        const isPartial = devicesWithPrice.length < rfq.devices.length;
-        return { total, isPartial };
-    };
+    const activeFilterCount = filters.countries.length;
 
     // Handle column header click for sorting
     const handleSort = (field: RFQSortField) => {
@@ -3898,6 +4007,8 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
 
     const filteredRFQs = rfqs
         .filter((rfq) => {
+            // Auto-hide expired RFQs
+            if (isRFQExpired(rfq.createdAt, nowMs)) return false;
             // Filter out excluded RFQs
             if (excludeRFQIds.includes(rfq.id)) return false;
             // Filter by search query (RFQ ID or device names)
@@ -3909,11 +4020,6 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
             }
             // Filter by countries from filter modal
             if (filters.countries.length > 0 && !filters.countries.includes(rfq.country)) return false;
-            // Filter by budget range
-            const rfqTotal = calculateRFQTotal(rfq);
-            if (rfqTotal) {
-                if (rfqTotal.total < filters.budgetRange[0] || rfqTotal.total > filters.budgetRange[1]) return false;
-            }
             return true;
         })
         .sort((a, b) => {
@@ -3927,15 +4033,13 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
                     aValue = a.id;
                     bValue = b.id;
                     break;
-                case "budget":
-                    const aTotal = calculateRFQTotal(a);
-                    const bTotal = calculateRFQTotal(b);
-                    aValue = aTotal?.total ?? 0;
-                    bValue = bTotal?.total ?? 0;
-                    break;
                 case "country":
                     aValue = a.country;
                     bValue = b.country;
+                    break;
+                case "deadline":
+                    aValue = new Date(a.createdAt).getTime();
+                    bValue = new Date(b.createdAt).getTime();
                     break;
                 default:
                     return 0;
@@ -4000,7 +4104,7 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
 
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="w-full min-w-[700px] text-left text-sm [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
+                <table className="w-full min-w-[820px] text-left text-sm [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
                     <thead>
                         <tr className="border-b border-[#e9eaeb] text-xs font-medium text-[#535862]">
                             <th className="px-6 py-3 font-medium">
@@ -4023,22 +4127,6 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
                             <th className="px-6 py-3 font-medium">
                                 <button
                                     type="button"
-                                    onClick={() => handleSort("budget")}
-                                    className={cx(
-                                        "flex items-center gap-1 hover:text-[#181d27]",
-                                        sortField === "budget" && "text-[#181d27]"
-                                    )}
-                                >
-                                    Budget
-                                    <ChevronSelectorVertical className={cx(
-                                        "size-4",
-                                        sortField === "budget" ? "text-[#181d27]" : "text-[#d0d5dd]"
-                                    )} />
-                                </button>
-                            </th>
-                            <th className="px-6 py-3 font-medium">
-                                <button
-                                    type="button"
                                     onClick={() => handleSort("country")}
                                     className={cx(
                                         "flex items-center gap-1 hover:text-[#181d27]",
@@ -4051,6 +4139,32 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
                                         sortField === "country" ? "text-[#181d27]" : "text-[#d0d5dd]"
                                     )} />
                                 </button>
+                            </th>
+                            <th className="px-6 py-3 font-medium">
+                                <Tooltip
+                                    title="Vendors must respond within 24 hours of RFQ creation or the request expires."
+                                    placement="top"
+                                    arrow
+                                >
+                                    <TooltipTrigger>
+                                        <span
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => handleSort("deadline")}
+                                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleSort("deadline"); } }}
+                                            className={cx(
+                                                "flex cursor-pointer items-center gap-1 hover:text-[#181d27]",
+                                                sortField === "deadline" && "text-[#181d27]"
+                                            )}
+                                        >
+                                            Time Remaining
+                                            <ChevronSelectorVertical className={cx(
+                                                "size-4",
+                                                sortField === "deadline" ? "text-[#181d27]" : "text-[#d0d5dd]"
+                                            )} />
+                                        </span>
+                                    </TooltipTrigger>
+                                </Tooltip>
                             </th>
                             <th className="px-6 py-3 font-medium" />
                         </tr>
@@ -4078,18 +4192,14 @@ function RFQsTable({ onViewRFQ, excludeRFQIds = [] }: { onViewRFQ: (rfq: RFQ) =>
                                     <td className="px-6 py-4">
                                         <RFQDeviceCount devices={rfq.devices} />
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-[#181d27]">
-                                        {(() => {
-                                            const result = calculateRFQTotal(rfq);
-                                            if (!result) return "—";
-                                            return formatCurrency(result.total);
-                                        })()}
-                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1.5">
                                             <CountryFlag country={rfq.country} />
                                             <span className="text-sm text-[#535862]">{rfq.country}</span>
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <RFQDeadlineBadge createdAt={rfq.createdAt} nowMs={nowMs} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <button

@@ -649,7 +649,7 @@ function HeaderNavigation() {
 
 function PageHeader() {
     return (
-        <div className="w-full">
+        <div className="w-full page-px">
             <div className="flex flex-col gap-5">
                 {/* Title and description */}
                 <div className="flex flex-col gap-1">
@@ -2161,7 +2161,7 @@ export default function OrdersPage() {
                 <PageHeader />
 
                 {/* Content */}
-                <div>
+                <div className="w-full page-px">
                     {/* Tabs */}
                     <div className="mb-6">
                         <Tabs
