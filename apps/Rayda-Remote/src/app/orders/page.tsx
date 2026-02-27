@@ -22,7 +22,9 @@ import {
     RefreshCw03,
     SearchLg,
     Settings01,
+    Menu01,
     ShoppingBag01,
+    ShoppingCart01,
     XCircle,
     XClose,
 } from "@untitledui/icons";
@@ -609,36 +611,116 @@ function OrdersTable() {
 // ---------------------------------------------------------------------------
 
 function HeaderNavigation() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     return (
-        <header className="sticky top-0 z-40 flex w-full shrink-0 flex-col items-center border-b border-[#22262f] bg-[#0c0e12]">
-            <div className="flex h-[72px] w-full max-w-[1280px] items-center justify-between px-8">
+        <header className="relative sticky top-0 z-40 w-full border-b border-[#22262f] bg-[#0c0e12]">
+            <div className="flex h-[72px] w-full items-center justify-between page-px">
+                {/* Left: Logo + Nav */}
                 <div className="flex items-center gap-6">
-                    <RaydaLogo variant="white" />
-                    <nav className="flex items-center gap-0.5">
-                        {navItems.map((item) => (
-                            <a
-                                key={item.label}
-                                href={item.href}
-                                className={`rounded-md px-3 py-2 text-sm font-semibold ${item.current ? "bg-[#22262f] text-[#ececed]" : "text-[#cecfd2] hover:bg-white/5"}`}
-                            >
-                                {item.label}
-                            </a>
-                        ))}
+                    <a href="/" aria-label="Go to homepage">
+                        <RaydaLogo variant="white" />
+                    </a>
+
+                    <nav className="hidden lg:block">
+                        <ul className="flex items-center gap-0.5">
+                            {navItems.map((item) => (
+                                <li key={item.label}>
+                                    <a
+                                        href={item.href}
+                                        className={cx(
+                                            "rounded-md px-3 py-2 text-sm font-semibold transition duration-100 ease-linear",
+                                            item.current ? "bg-[#22262f] text-[#ececed]" : "text-[#cecfd2] hover:bg-white/5",
+                                        )}
+                                    >
+                                        {item.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
                     </nav>
                 </div>
+
+                {/* Right: Actions + Avatar */}
                 <div className="flex items-center gap-1">
-                    <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
-                        <Bell02 className="size-5" />
-                    </button>
-                    <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
-                        <Settings01 className="size-5" />
-                    </button>
-                    <div className="relative size-10 shrink-0 cursor-pointer rounded-full bg-[#22262f]">
-                        <span className="absolute inset-0 rounded-full border border-white/[0.12]" />
-                        <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[#94979c]">OR</p>
+                    <div className="hidden gap-1 sm:flex">
+                        <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
+                            <Bell02 className="size-5" />
+                        </button>
+                        <button type="button" className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5">
+                            <Settings01 className="size-5" />
+                        </button>
                     </div>
+
+                    {/* Avatar (desktop) */}
+                    <div className="hidden lg:block">
+                        <div className="relative size-10 shrink-0 cursor-pointer rounded-full bg-[#22262f]">
+                            <span className="absolute inset-0 rounded-full border border-white/[0.12]" />
+                            <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[#94979c]">OR</p>
+                        </div>
+                    </div>
+
+                    {/* Mobile menu button */}
+                    <button
+                        type="button"
+                        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                        className="flex items-center justify-center rounded-md p-2 text-white transition hover:bg-white/10 lg:hidden"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {mobileMenuOpen ? <XClose className="size-6" /> : <Menu01 className="size-6" />}
+                    </button>
                 </div>
             </div>
+
+            {/* Mobile navigation overlay */}
+            {mobileMenuOpen && (
+                <div className="absolute inset-x-0 top-[72px] z-50 border-b border-[#22262f] bg-[#0c0e12] lg:hidden">
+                    <nav className="flex flex-col px-4 pb-4 pt-2 sm:px-6">
+                        <ul className="flex flex-col gap-1">
+                            {navItems.map((item) => (
+                                <li key={item.label}>
+                                    <a
+                                        href={item.href}
+                                        className={cx(
+                                            "block rounded-md px-3 py-2.5 text-sm font-semibold transition duration-100 ease-linear",
+                                            item.current ? "bg-[#22262f] text-[#ececed]" : "text-[#cecfd2] hover:bg-white/5",
+                                        )}
+                                    >
+                                        {item.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* Divider */}
+                        <div className="my-3 h-px bg-[#22262f]" />
+
+                        {/* Mobile-only actions */}
+                        <div className="flex flex-col gap-1 sm:hidden">
+                            <a href="#" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold text-[#cecfd2] transition hover:bg-white/5">
+                                <Bell02 className="size-5 text-[#94979c]" />
+                                Notifications
+                            </a>
+                            <a href="#" className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold text-[#cecfd2] transition hover:bg-white/5">
+                                <Settings01 className="size-5 text-[#94979c]" />
+                                Settings
+                            </a>
+                        </div>
+
+                        {/* User info */}
+                        <div className="mt-3 flex items-center gap-3 rounded-md px-3 py-2.5">
+                            <div className="relative size-10 shrink-0 rounded-full bg-[#22262f]">
+                                <span className="absolute inset-0 rounded-full border border-white/[0.12]" />
+                                <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[#94979c]">OR</p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-white">Olivia Rhye</p>
+                                <p className="truncate text-sm text-[#94979c]">olivia@rayda.co</p>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            )}
         </header>
     );
 }
@@ -649,7 +731,7 @@ function HeaderNavigation() {
 
 function PageHeader() {
     return (
-        <div className="w-full page-px">
+        <div className="w-full">
             <div className="flex flex-col gap-5">
                 {/* Title and description */}
                 <div className="flex flex-col gap-1">
@@ -2156,12 +2238,12 @@ export default function OrdersPage() {
         <div className="flex min-h-screen flex-col bg-[#fcfcfd]">
             <HeaderNavigation />
 
-            <main className="flex flex-col items-center gap-8 pb-12 pt-8 sm:pb-24 sm:pt-12">
-                <div className="flex w-full max-w-[1280px] flex-col gap-6 px-4 sm:px-6 lg:px-8">
+            <main className="flex min-w-0 flex-col gap-8 pb-12 pt-8 sm:pb-24 sm:pt-12">
+                <div className="flex w-full min-w-0 flex-col gap-6 page-px">
                 <PageHeader />
 
                 {/* Content */}
-                <div className="w-full page-px">
+                <div className="w-full">
                     {/* Tabs */}
                     <div className="mb-6">
                         <Tabs
