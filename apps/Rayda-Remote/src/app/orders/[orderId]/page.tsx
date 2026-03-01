@@ -10,18 +10,21 @@ import {
     ChevronRight,
     ChevronSelectorVertical,
     ClipboardCheck,
+    Eye,
     HelpCircle,
     Home01,
     Mail01,
     Package,
     RefreshCw03,
     Settings01,
-    X,
-    ZapFast,
     ShieldTick,
     Truck01,
+    X,
+    ZapFast,
 } from "@untitledui/icons";
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
+import { Dropdown } from "@/components/base/dropdown/dropdown";
+import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/modal";
 import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
 import { orders, countryMeta, type OrderStatus, type SignatureStatus } from "../data";
 
@@ -38,7 +41,36 @@ const employees = [
     { id: "6", initials: "NC", name: "Natali Craig", email: "natali@rayda.co", role: "Senior Management", address: "2464 Royal Ln. Mesa, New Jersey 45463", amount: "$20,563.22", status: "completed" as const, signature: "not-required" as const },
 ];
 
-const activityFeed = [
+interface EmpRow {
+    id: string;
+    initials: string;
+    name: string;
+    email: string;
+    role: string;
+    address: string;
+    amount: string;
+    status: EmpStatus;
+    signature: SigStatus;
+    adminAddressVerified: boolean;
+}
+
+interface FeedItem {
+    id: string;
+    type: string;
+    initials: string;
+    title: string;
+    time: string;
+    description?: string;
+    highlight?: string | null;
+    description2?: string;
+    badge?: { label: string; style: string };
+    action?: string;
+    message?: string;
+    attachment?: { name: string; size: string };
+    isLast?: boolean;
+}
+
+const initialActivityFeed = [
     {
         id: "a1",
         type: "system",
@@ -209,7 +241,7 @@ function EmployeeSlideout({
     employee,
     onClose,
 }: {
-    employee: (typeof employees)[number];
+    employee: EmpRow;
     onClose: () => void;
 }) {
     const [sigEnabled, setSigEnabled] = useState(employee.signature === "required");
@@ -396,15 +428,15 @@ function FeedAvatar({ initials, type }: { initials: string; type: string }) {
     );
 }
 
-function ActivityFeed() {
+function ActivityFeed({ items }: { items: FeedItem[] }) {
     return (
         <div className="flex flex-col py-2">
-            {activityFeed.map((item, idx) => (
+            {items.map((item, idx) => (
                 <div key={item.id} className="flex gap-4">
                     {/* Left: avatar + connector */}
                     <div className="flex flex-col items-center">
                         <FeedAvatar initials={item.initials} type={item.type} />
-                        {!item.isLast && idx < activityFeed.length - 1 && (
+                        {!item.isLast && idx < items.length - 1 && (
                             <div className="w-0.5 flex-1 bg-[#e9eaeb]" style={{ minHeight: 24 }} />
                         )}
                     </div>
@@ -599,9 +631,68 @@ export default function OrderDetailPage() {
     const order = orders.find((o) => o.id === orderId) ?? orders[0];
 
     const [activeTab, setActiveTab] = useState<"info" | "updates">("info");
-    const [selectedEmployee, setSelectedEmployee] = useState<(typeof employees)[number] | null>(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<EmpRow | null>(null);
     const [sortKey, setSortKey] = useState<"name" | "address" | "amount" | "status" | "signature">("name");
     const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+    const [empList, setEmpList] = useState<EmpRow[]>(() =>
+        employees.map((e) => ({ ...e, adminAddressVerified: false }))
+    );
+    const [feedItems, setFeedItems] = useState<FeedItem[]>(initialActivityFeed);
+    const [verifyModal, setVerifyModal] = useState<{ type: "single"; empId: string } | { type: "bulk" } | null>(null);
+
+    const ADMIN_NAME = "Olivia Rhye";
+    const ADMIN_INITIALS = "OR";
+
+    function formatAuditTime(): string {
+        const now = new Date();
+        const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).toLowerCase();
+        const date = now.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+        return `${time} · ${date}`;
+    }
+
+    function confirmVerifyAddress(empId: string) {
+        const emp = empList.find((e) => e.id === empId);
+        if (!emp || emp.status !== "verification-pending") return;
+        setEmpList((prev) =>
+            prev.map((e) => (e.id === empId ? { ...e, adminAddressVerified: true, status: "in-progress" as const } : e))
+        );
+        setFeedItems((prev) => [
+            {
+                id: `audit-addr-${Date.now()}`,
+                type: "user",
+                initials: ADMIN_INITIALS,
+                title: "Address verified by admin",
+                time: formatAuditTime(),
+                description: `${ADMIN_NAME} verified the delivery address for`,
+                highlight: emp.name,
+                isLast: false,
+            },
+            ...prev,
+        ]);
+        setVerifyModal(null);
+    }
+
+    function confirmVerifyAllPending() {
+        const pending = empList.filter((e) => e.status === "verification-pending");
+        if (pending.length === 0) return;
+        setEmpList((prev) =>
+            prev.map((e) => (e.status === "verification-pending" ? { ...e, adminAddressVerified: true, status: "in-progress" as const } : e))
+        );
+        setFeedItems((prev) => [
+            {
+                id: `audit-bulk-${Date.now()}`,
+                type: "user",
+                initials: ADMIN_INITIALS,
+                title: "All pending addresses verified by admin",
+                time: formatAuditTime(),
+                description: `${ADMIN_NAME} verified delivery addresses for all ${pending.length} pending employee${pending.length > 1 ? "s" : ""}`,
+                highlight: null,
+                isLast: false,
+            },
+            ...prev,
+        ]);
+        setVerifyModal(null);
+    }
 
     function handleSort(key: typeof sortKey) {
         if (sortKey === key) {
@@ -612,7 +703,7 @@ export default function OrderDetailPage() {
         }
     }
 
-    const sortedEmployees = [...employees].sort((a, b) => {
+    const sortedEmployees = [...empList].sort((a, b) => {
         let aVal: string | number = "";
         let bVal: string | number = "";
         if (sortKey === "amount") {
@@ -629,6 +720,8 @@ export default function OrderDetailPage() {
             ? String(aVal).localeCompare(String(bVal))
             : String(bVal).localeCompare(String(aVal));
     });
+
+    const hasPending = empList.some((e) => e.status === "verification-pending");
 
     return (
         <div className="flex min-h-screen flex-col bg-[#fdfdfd]">
@@ -700,12 +793,23 @@ export default function OrderDetailPage() {
                                                 {order.employeeCount} Employees
                                             </span>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="rounded-lg bg-[#0b5de8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0948b5]"
-                                        >
-                                            Make signature required
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            {hasPending && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setVerifyModal({ type: "bulk" })}
+                                                    className="rounded-lg border border-[#d0d5dd] bg-white px-4 py-2 text-sm font-semibold text-[#344054] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] hover:bg-[#f9fafb]"
+                                                >
+                                                    Verify all pending
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="rounded-lg bg-[#0b5de8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0948b5]"
+                                            >
+                                                Make signature required
+                                            </button>
+                                        </div>
                                     </div>
                                     <table className="w-full border-collapse">
                                         <thead>
@@ -767,13 +871,20 @@ export default function OrderDetailPage() {
                                                     <td className="px-6 py-4"><EmpStatusBadge status={emp.status} /></td>
                                                     <td className="px-6 py-4"><SigBadge sig={emp.signature} /></td>
                                                     <td className="py-4 pl-4 pr-6 text-right">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setSelectedEmployee(emp)}
-                                                            className="text-sm font-semibold text-[#0948b5] hover:underline"
-                                                        >
-                                                            View
-                                                        </button>
+                                                        <Dropdown.Root>
+                                                            <Dropdown.DotsButton />
+                                                            <Dropdown.Popover>
+                                                                <Dropdown.Menu selectionMode="none" onAction={(key) => {
+                                                                    if (key === "view") setSelectedEmployee(emp);
+                                                                    if (key === "verify") setVerifyModal({ type: "single", empId: emp.id });
+                                                                }}>
+                                                                    <Dropdown.Item id="view" icon={Eye} label="View" />
+                                                                    {emp.status === "verification-pending" && (
+                                                                        <Dropdown.Item id="verify" icon={ShieldTick} label="Verify address" />
+                                                                    )}
+                                                                </Dropdown.Menu>
+                                                            </Dropdown.Popover>
+                                                        </Dropdown.Root>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -796,7 +907,7 @@ export default function OrderDetailPage() {
                                     </div>
                                     <div className="h-px mt-4 w-full bg-[#eaecf0]" />
                                     <div className="px-6 py-6">
-                                        <ActivityFeed />
+                                        <ActivityFeed items={feedItems} />
                                     </div>
                                 </div>
                             )}
@@ -812,6 +923,96 @@ export default function OrderDetailPage() {
                     onClose={() => setSelectedEmployee(null)}
                 />
             )}
+
+            {/* Verify address confirmation modal */}
+            <ModalOverlay isOpen={!!verifyModal} onOpenChange={(open) => !open && setVerifyModal(null)} isDismissable>
+                <Modal className="sm:max-w-[480px]">
+                    <Dialog>
+                        <div className="w-full rounded-xl bg-white p-6 shadow-[0px_20px_24px_-4px_rgba(16,24,40,0.08),0px_8px_8px_-4px_rgba(16,24,40,0.03)]">
+                            {/* Header */}
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#e7f0ff]">
+                                    <ShieldTick className="size-5 text-[#0948b5]" />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setVerifyModal(null)}
+                                    className="ml-auto flex size-9 shrink-0 items-center justify-center rounded-lg text-[#717680] hover:bg-[#f9fafb]"
+                                >
+                                    <X className="size-5" />
+                                </button>
+                            </div>
+
+                            <p className="mt-4 text-lg font-semibold text-[#181d27]">
+                                {verifyModal?.type === "bulk" ? "Verify all pending addresses" : "Verify address"}
+                            </p>
+                            <p className="mt-1 text-sm text-[#535862]">
+                                {verifyModal?.type === "bulk"
+                                    ? "You're about to verify the delivery addresses for all pending employees. This allows their orders to proceed immediately without waiting for employee confirmation."
+                                    : "You're about to verify this employee's delivery address on their behalf. This allows the order to proceed without waiting for their confirmation."}
+                            </p>
+
+                            {/* Address list */}
+                            <div className="mt-5 flex flex-col gap-3">
+                                {verifyModal?.type === "single" && (() => {
+                                    const emp = empList.find((e) => e.id === verifyModal.empId);
+                                    if (!emp) return null;
+                                    return (
+                                        <div className="flex items-start gap-3 rounded-xl border border-[#eaecf0] p-4">
+                                            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7]">
+                                                <span className="text-sm font-medium text-[#475467]">{emp.initials}</span>
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-[#181d27]">{emp.name}</p>
+                                                <p className="text-xs text-[#717680]">{emp.role}</p>
+                                                <p className="mt-1.5 text-sm text-[#535862]">{emp.address}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+
+                                {verifyModal?.type === "bulk" && (
+                                    <div className="flex max-h-[260px] flex-col gap-2 overflow-y-auto">
+                                        {empList.filter((e) => e.status === "verification-pending").map((emp) => (
+                                            <div key={emp.id} className="flex items-start gap-3 rounded-xl border border-[#eaecf0] p-4">
+                                                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7]">
+                                                    <span className="text-sm font-medium text-[#475467]">{emp.initials}</span>
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-[#181d27]">{emp.name}</p>
+                                                    <p className="text-xs text-[#717680]">{emp.role}</p>
+                                                    <p className="mt-1.5 text-sm text-[#535862]">{emp.address}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="mt-6 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setVerifyModal(null)}
+                                    className="flex-1 rounded-lg border border-[#d0d5dd] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] hover:bg-[#f9fafb]"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (verifyModal?.type === "single") confirmVerifyAddress(verifyModal.empId);
+                                        else if (verifyModal?.type === "bulk") confirmVerifyAllPending();
+                                    }}
+                                    className="flex-1 rounded-lg bg-[#0b5de8] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0948b5]"
+                                >
+                                    {verifyModal?.type === "bulk" ? "Verify all" : "Verify address"}
+                                </button>
+                            </div>
+                        </div>
+                    </Dialog>
+                </Modal>
+            </ModalOverlay>
         </div>
     );
 }
