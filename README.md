@@ -4,15 +4,14 @@ A monorepo containing four Rayda products built with [Untitled UI React](https:/
 
 ## Apps
 
-| App | Port | Command | Description |
-|-----|------|---------|-------------|
-| **Rayda Remote** | 3001 | `npm run dev:remote` | Device onboarding & marketplace |
-| **Vendor Portal** | 3002 | `npm run dev:vendor` | Order & inventory management |
-| **Rayda Admin** | 3003 | `npm run dev:admin` | Platform administration |
-| **Remote Employees** | 3004 | `npm run dev:employees` | Employee device management |
+| App                  | Port | Command                 | Description                     |
+| -------------------- | ---- | ----------------------- | ------------------------------- |
+| **Rayda Remote**     | 3001 | `npm run dev:remote`    | Device onboarding & marketplace |
+| **Vendor Portal**    | 3002 | `npm run dev:vendor`    | Order & inventory management    |
+| **Rayda Admin**      | 3003 | `npm run dev:admin`     | Platform administration         |
+| **Remote Employees** | 3004 | `npm run dev:employees` | Employee device management      |
 
 ## Getting Started
-
 
 ### 1. Install Dependencies
 
@@ -107,6 +106,7 @@ See [DESIGN_HANDOFF.md](./DESIGN_HANDOFF.md) for detailed instructions.
 This project is built on [Untitled UI React](https://www.untitledui.com/react), the world's largest collection of open-source React UI components.
 
 **Resources:**
+
 - [Untitled UI Figma](https://www.untitledui.com/figma) - Design system
 - [Untitled UI Icons](https://www.untitledui.com/icons) - Icon library
 - [Documentation](https://www.untitledui.com/react/docs/introduction)

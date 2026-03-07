@@ -1,3 +1,1 @@
-import { HomeScreen } from "./home-screen";
-
-export default HomeScreen;
+export { HomePage as default } from "@/containers/Home";

@@ -6,12 +6,12 @@
 
 This monorepo contains 4 Next.js apps that serve different user roles:
 
-| App | Port | Package | Purpose |
-|-----|------|---------|---------|
-| **Rayda Remote** | 3001 | `@rayda/rayda-remote` | Customer-facing portal for device onboarding, marketplace browsing, and order management |
-| **Vendor Portal** | 3002 | `@rayda/vendor-portal` | Vendor/supplier platform for managing incoming orders, RFQs, inventory, and quoting |
-| **Rayda Admin** | 3003 | `@rayda/rayda-admin` | Internal admin dashboard for platform management (coming soon) |
-| **Remote Employees** | 3004 | `@rayda/remote-employees` | Employee self-service portal for device requests and tracking (coming soon) |
+| App                  | Port | Package                   | Purpose                                                                                  |
+| -------------------- | ---- | ------------------------- | ---------------------------------------------------------------------------------------- |
+| **Rayda Remote**     | 3001 | `@rayda/rayda-remote`     | Customer-facing portal for device onboarding, marketplace browsing, and order management |
+| **Vendor Portal**    | 3002 | `@rayda/vendor-portal`    | Vendor/supplier platform for managing incoming orders, RFQs, inventory, and quoting      |
+| **Rayda Admin**      | 3003 | `@rayda/rayda-admin`      | Internal admin dashboard for platform management (coming soon)                           |
+| **Remote Employees** | 3004 | `@rayda/remote-employees` | Employee self-service portal for device requests and tracking (coming soon)              |
 
 ### Key Business Domain Concepts
 
@@ -25,11 +25,13 @@ This monorepo contains 4 Next.js apps that serve different user roles:
 ### Current App Pages
 
 **Rayda Remote (3001):**
+
 - `/onboard-device` — Device onboarding flow with country/location selection
 - `/onboard-device/marketplace` — Device marketplace with filtering by asset type, state, specs, and price
 - `/orders` — Order management dashboard with RFQ tracking, search, filtering, sorting, and pagination
 
 **Vendor Portal (3002):**
+
 - `/vendor-portal` — Vendor dashboard with order requests table, RFQ management, filtering, slideout detail panels, and quote workflow
 
 **Rayda Admin (3003):** Placeholder — coming soon
@@ -181,16 +183,16 @@ Located in `components/application/`, these are complex UI patterns:
 
 ```typescript
 interface CommonProps {
-    size?: "sm" | "md" | "lg";
-    isDisabled?: boolean;
-    isLoading?: boolean;
-    // ... other common props
+  size?: "sm" | "md" | "lg";
+  isDisabled?: boolean;
+  isLoading?: boolean;
+  // ... other common props
 }
 
 interface ButtonProps extends CommonProps, HTMLButtonElement {
-    color?: "primary" | "secondary" | "tertiary";
-    iconLeading?: FC | ReactNode;
-    iconTrailing?: FC | ReactNode;
+  color?: "primary" | "secondary" | "tertiary";
+  iconLeading?: FC | ReactNode;
+  iconTrailing?: FC | ReactNode;
 }
 ```
 
@@ -200,11 +202,11 @@ interface ButtonProps extends CommonProps, HTMLButtonElement {
 
 All page content (except pages with sidebar navigation like Vendor Portal) must use the following responsive horizontal padding:
 
-| Breakpoint | Screen width | Padding |
-|------------|-------------|---------|
-| Mobile | Below 768px | 16px |
-| Tablet / Small Desktop | 768px – 1439px | 32px |
-| Desktop | 1440px and above | 112px |
+| Breakpoint             | Screen width     | Padding |
+| ---------------------- | ---------------- | ------- |
+| Mobile                 | Below 768px      | 16px    |
+| Tablet / Small Desktop | 768px – 1439px   | 32px    |
+| Desktop                | 1440px and above | 112px   |
 
 **Usage:** Apply the `page-px` utility class. This is a custom Tailwind utility defined in each app's `globals.css` that handles all three breakpoints automatically.
 
@@ -224,20 +226,20 @@ To change the main brand color across the entire application:
 1. **Update Brand Color Variables**: Edit `src/styles/theme.css` and modify the `--color-brand-*` variables
 2. **Maintain Color Scale**: Ensure you provide a complete color scale from 25 to 950 with proper contrast ratios
 3. **Example Brand Color Scale**:
-    ```css
-    --color-brand-25: rgb(252 250 255); /* Lightest tint */
-    --color-brand-50: rgb(249 245 255);
-    --color-brand-100: rgb(244 235 255);
-    --color-brand-200: rgb(233 215 254);
-    --color-brand-300: rgb(214 187 251);
-    --color-brand-400: rgb(182 146 246);
-    --color-brand-500: rgb(158 119 237); /* Base brand color */
-    --color-brand-600: rgb(127 86 217); /* Primary interactive color */
-    --color-brand-700: rgb(105 65 198);
-    --color-brand-800: rgb(83 56 158);
-    --color-brand-900: rgb(66 48 125);
-    --color-brand-950: rgb(44 28 95); /* Darkest shade */
-    ```
+   ```css
+   --color-brand-25: rgb(252 250 255); /* Lightest tint */
+   --color-brand-50: rgb(249 245 255);
+   --color-brand-100: rgb(244 235 255);
+   --color-brand-200: rgb(233 215 254);
+   --color-brand-300: rgb(214 187 251);
+   --color-brand-400: rgb(182 146 246);
+   --color-brand-500: rgb(158 119 237); /* Base brand color */
+   --color-brand-600: rgb(127 86 217); /* Primary interactive color */
+   --color-brand-700: rgb(105 65 198);
+   --color-brand-800: rgb(83 56 158);
+   --color-brand-900: rgb(66 48 125);
+   --color-brand-950: rgb(44 28 95); /* Darkest shade */
+   ```
 
 The color scale automatically adapts to both light and dark modes through the CSS variable system.
 
@@ -245,18 +247,18 @@ The color scale automatically adapts to both light and dark modes through the CS
 
 ```typescript
 export const styles = sortCx({
-    common: {
-        root: "base-classes-here",
-        icon: "icon-classes-here",
-    },
-    sizes: {
-        sm: { root: "small-size-classes" },
-        md: { root: "medium-size-classes" },
-    },
-    colors: {
-        primary: { root: "primary-color-classes" },
-        secondary: { root: "secondary-color-classes" },
-    },
+  common: {
+    root: "base-classes-here",
+    icon: "icon-classes-here",
+  },
+  sizes: {
+    sm: { root: "small-size-classes" },
+    md: { root: "medium-size-classes" },
+  },
+  colors: {
+    primary: { root: "primary-color-classes" },
+    secondary: { root: "secondary-color-classes" },
+  },
 });
 ```
 
@@ -356,8 +358,8 @@ This provides a snappy 100ms linear transition that feels responsive without bei
 
 ```typescript
 const Select = SelectComponent as typeof SelectComponent & {
-    Item: typeof SelectItem;
-    ComboBox: typeof ComboBox;
+  Item: typeof SelectItem;
+  ComboBox: typeof ComboBox;
 };
 Select.Item = SelectItem;
 Select.ComboBox = ComboBox;

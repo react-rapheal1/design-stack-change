@@ -1,0 +1,30 @@
+/* eslint-disable */
+// @ts-nocheck
+const deviceImages = {
+  macbook: "/devices/laptops/macbook.png",
+  dell: "/devices/laptops/dell.png",
+  hp: "/devices/laptops/hp.png",
+  asus: "/devices/laptops/asus.png",
+  lenovo: "/devices/laptops/lenovo.png",
+  lgMonitor: "/devices/monitors/lg.png",
+  dellMonitor: "/devices/monitors/dell.png",
+  samsungMonitor: "/devices/monitors/samsung.png",
+  acerMonitor: "/devices/monitors/acer.png",
+  benqMonitor: "/devices/monitors/benq.png",
+  ipad: "/devices/tablets/ipad.png",
+  samsungTablet: "/devices/tablets/samsung.png",
+  surface: "/devices/tablets/microsoft.png",
+  iphone: "/devices/phones/iphone.png",
+  samsungPhone: "/devices/phones/samsung.png",
+  pixel: "/devices/phones/google-pixel.png",
+  sonyHeadphones: "/devices/accessories/headphones/sony.png",
+  jabraHeadphones: "/devices/accessories/headphones/jabra.png",
+  logitechHeadphones: "/devices/accessories/headphones/logitech.png",
+  airpodsPro: "/devices/accessories/earpods/airpods-pro.png",
+  airpods: "/devices/accessories/earpods/airpods.png",
+  jabraEarbuds: "/devices/accessories/earpods/jabra.png",
+  logitechMouse: "/devices/accessories/mice/logitech-mx.png",
+  dellMouse: "/devices/accessories/mice/dell.png",
+  microsoftMouse: "/devices/accessories/mice/microsoft.png",
+};
+export { deviceImages };

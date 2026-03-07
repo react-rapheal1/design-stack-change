@@ -1,3 +1,5 @@
 {
-    "liveServer.settings.multiRootWorkspaceName": "vendor-ui"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "liveServer.settings.multiRootWorkspaceName": "vendor-ui"
 }

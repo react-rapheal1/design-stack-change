@@ -24,11 +24,13 @@ This workflow synchronizes components from the main [untitleduico/react](https:/
 ## Sync modes
 
 ### `all` (default)
+
 - Syncs all files from the main repository
 - Adds new files and updates existing ones
 - Creates complete mirror of main repo structure
 
 ### `existing-only`
+
 - Only updates files that already exist in your repository
 - Skips new files from the main repository
 - Useful for maintaining a subset of components
@@ -43,6 +45,7 @@ This workflow synchronizes components from the main [untitleduico/react](https:/
 ## Branch naming
 
 Branches follow the pattern: `sync/YYYY-MM-DD-[short-commit-hash]`
+
 - Example: `sync/2024-03-15-a1b2c3d`
 
 ## PR format
@@ -50,10 +53,12 @@ Branches follow the pattern: `sync/YYYY-MM-DD-[short-commit-hash]`
 The generated PR includes:
 
 ### Title
+
 - **New commits**: `🔄 Sync components (X commits) → a1b2c3d`
 - **First sync**: `🎉 Initial sync from main repository → a1b2c3d`
 
 ### Content
+
 - **Commits since last sync**: Collapsible commit history with links
 - **Changed files**: Each file with collapsible diff view
 - **Sync details**: Source repo, latest commit, date, directories synced
@@ -62,6 +67,7 @@ The generated PR includes:
 ## State management
 
 The workflow stores sync state in `.github/last-sync-commit` to track:
+
 - Last successfully synced commit hash
 - Enables incremental sync reporting
 - Shows commit ranges in PR descriptions

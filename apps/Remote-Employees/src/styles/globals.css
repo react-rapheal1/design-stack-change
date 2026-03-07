@@ -1,5 +1,0 @@
-@import "../../../../src/styles/globals.css";
-
-/* Scan this app's source files */
-@source "../app/**/*.{js,ts,jsx,tsx}";
-@source "../components/**/*.{js,ts,jsx,tsx}";
