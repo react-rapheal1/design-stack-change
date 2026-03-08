@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { RemoteNavigation } from "../Shared/RemoteNavigation";
-import { DashboardContent } from "./DashboardContent";
-import { OnboardingModal } from "./OnboardingModal";
+import { RemoteNavigation } from "../Shared/components/RemoteNavigation";
+import { DashboardContent } from "./components/DashboardContent";
+import { OnboardingModal } from "./components/OnboardingModal";
 import { tourDestinations } from "./constants";
 
 export default function DashboardPage() {

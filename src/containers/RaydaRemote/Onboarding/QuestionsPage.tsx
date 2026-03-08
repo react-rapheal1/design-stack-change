@@ -1,4 +1,4 @@
-import { QuestionBlock } from "./QuestionBlock";
+import { QuestionBlock } from "./components/QuestionBlock";
 import { ALL_QUESTION_STEPS } from "./questionSteps";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
 import type { Answers } from "./types";

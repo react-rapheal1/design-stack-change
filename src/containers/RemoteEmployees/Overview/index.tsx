@@ -1,9 +1,9 @@
 "use client";
 
-import { AssetsSection } from "./AssetsSection";
-import { DetailsBar } from "./DetailsBar";
-import { HeaderNavigation } from "./HeaderNavigation";
-import { ProfileHeader } from "./ProfileHeader";
+import { AssetsSection } from "./components/AssetsSection";
+import { DetailsBar } from "./components/DetailsBar";
+import { HeaderNavigation } from "./components/HeaderNavigation";
+import { ProfileHeader } from "./components/ProfileHeader";
 
 export default function OverviewPage() {
   return (

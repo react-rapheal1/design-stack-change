@@ -1,6 +1,6 @@
-import { HeaderNavigation } from "./HeaderNavigation";
-import { PageHeader } from "./PageHeader";
-import { SelectCountryCard } from "./SelectCountryCard";
+import { HeaderNavigation } from "./components/HeaderNavigation";
+import { PageHeader } from "./components/PageHeader";
+import { SelectCountryCard } from "./components/SelectCountryCard";
 
 function OnboardDevicePage() {
   return (

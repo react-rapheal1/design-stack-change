@@ -1,6 +1,6 @@
 "use client";
 
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, DetailedHTMLProps, FC, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ComponentType, DetailedHTMLProps, ReactNode } from "react";
 import React, { isValidElement } from "react";
 import type { ButtonProps as AriaButtonProps, LinkProps as AriaLinkProps } from "react-aria-components";
 import { Button as AriaButton, Link as AriaLink } from "react-aria-components";
@@ -145,9 +145,9 @@ export interface CommonProps {
   /** The color variant of the button */
   color?: keyof typeof styles.colors;
   /** Icon component or element to show before the text */
-  iconLeading?: FC<{ className?: string }> | ReactNode;
+  iconLeading?: ComponentType<{ className?: string }> | ReactNode;
   /** Icon component or element to show after the text */
-  iconTrailing?: FC<{ className?: string }> | ReactNode;
+  iconTrailing?: ComponentType<{ className?: string }> | ReactNode;
   /** Removes horizontal padding from the text content */
   noTextPadding?: boolean;
   /** When true, keeps the text visible during loading state */

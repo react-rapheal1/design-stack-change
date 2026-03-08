@@ -1,6 +1,6 @@
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
-import { SidePanel } from "./SidePanel";
-import { SignupForm } from "./SignupForm";
+import { SidePanel } from "./components/SidePanel";
+import { SignupForm } from "./components/SignupForm";
 
 export default function SignupPage() {
   return (

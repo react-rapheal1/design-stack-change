@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { MarketplacePageContent } from "./MarketplacePageContent";
+import { MarketplacePageContent } from "./components/MarketplacePageContent";
 
 function MarketplacePage() {
   return (

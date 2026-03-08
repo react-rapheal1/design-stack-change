@@ -6,12 +6,12 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
 import { GuidedTooltip } from "@/components/guided-tooltip";
 import { cx } from "@/utils/cx";
-import { RemoteNavigation } from "../Shared/RemoteNavigation";
-import { AddDeviceModal } from "./AddDeviceModal";
-import { CsvUploadModal } from "./CsvUploadModal";
-import { EquipmentTable } from "./EquipmentTable";
-import { SelfReportModal } from "./SelfReportModal";
-import { TourContextBanner } from "./TourContextBanner";
+import { RemoteNavigation } from "../Shared/components/RemoteNavigation";
+import { AddDeviceModal } from "./components/AddDeviceModal";
+import { CsvUploadModal } from "./components/CsvUploadModal";
+import { EquipmentTable } from "./components/EquipmentTable";
+import { SelfReportModal } from "./components/SelfReportModal";
+import { TourContextBanner } from "./components/TourContextBanner";
 import { tourSteps } from "./tourSteps";
 
 export default function EquipmentPage() {

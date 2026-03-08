@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { GuidedTooltip } from "@/components/guided-tooltip";
-import { RemoteNavigation } from "../Shared/RemoteNavigation";
-import { EmployeesHeader } from "./EmployeesHeader";
-import { EmployeesTable } from "./EmployeesTable";
-import { EmployeesTourBanner } from "./EmployeesTourBanner";
-import { HrisPanel } from "./HrisPanel";
-import { ResolveFlagsPanel } from "./ResolveFlagsPanel";
+import { RemoteNavigation } from "../Shared/components/RemoteNavigation";
+import { EmployeesHeader } from "./components/EmployeesHeader";
+import { EmployeesTable } from "./components/EmployeesTable";
+import { EmployeesTourBanner } from "./components/EmployeesTourBanner";
+import { HrisPanel } from "./components/HrisPanel";
+import { ResolveFlagsPanel } from "./components/ResolveFlagsPanel";
 import { DUMMY_EMPLOYEES, HRIS_TOUR_STEPS, RESOLVE_FLAGS_TOUR_STEPS } from "./data";
 import type { Employee, HrisView } from "./data";
 

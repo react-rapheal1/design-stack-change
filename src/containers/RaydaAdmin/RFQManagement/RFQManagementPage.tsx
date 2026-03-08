@@ -1,9 +1,9 @@
 "use client";
 
-import { HeaderNavigation } from "./HeaderNavigation";
-import { RFQManagementMetrics } from "./RFQManagementMetrics";
-import { RFQManagementTableCard } from "./RFQManagementTableCard";
-import { useRFQManagementData } from "./useRFQManagementData";
+import { HeaderNavigation } from "./components/HeaderNavigation";
+import { RFQManagementMetrics } from "./components/RFQManagementMetrics";
+import { RFQManagementTableCard } from "./components/RFQManagementTableCard";
+import { useRFQManagementData } from "./hooks/useRFQManagementData";
 
 export default function RFQManagementPage() {
   const data = useRFQManagementData();

@@ -9,10 +9,3 @@ pnpm-lock.yaml
 yarn.lock
 next-env.d.ts
 *.tsbuildinfo
-src/containers/RaydaAdmin/RFQManagementDetail/RFQDetailPage.tsx
-src/containers/RaydaRemote/Orders/RFQDetailsSidebar.tsx
-src/containers/RaydaRemote/OrderDetails/OrderDetailPage.tsx
-src/containers/RaydaAdmin/RFQManagementDetail/CurateResponseModal.tsx
-src/containers/VendorPortal/RespondToBudgetModal.tsx
-src/containers/VendorPortal/OrderDetailsSidebar.tsx
-src/containers/RaydaRemote/Orders/CustomDeviceRequestsTable.tsx

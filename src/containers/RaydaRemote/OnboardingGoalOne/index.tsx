@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
 import { cx } from "@/utils/cx";
-import { MissionCompleteStep } from "./MissionCompleteStep";
-import { AIProcessingStep, ImportMethodStep, ReviewInventoryStep } from "./MissionSteps";
-import { Goal1SidePanel, ProgressBar } from "./OnboardingPieces";
+import { MissionCompleteStep } from "./components/MissionCompleteStep";
+import { AIProcessingStep, ImportMethodStep, ReviewInventoryStep } from "./components/MissionSteps";
+import { Goal1SidePanel, ProgressBar } from "./components/OnboardingPieces";
 import { GOAL1_QUESTIONS, TOTAL_STEPS } from "./data";
 import type { Answers } from "./data";
 
