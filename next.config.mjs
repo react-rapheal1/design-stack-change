@@ -3,6 +3,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["@untitledui/icons", "@untitledui/country-flags"],
   },
+  output: "standalone",
   async redirects() {
     const redirects = [
       ["/dashboard", "/rayda-remote/dashboard"],
@@ -25,7 +26,6 @@ const nextConfig = {
       ["/employee/orders/:orderId", "/remote-employees/order-summary"],
       ["/vendor-portal/vendor-portal", "/vendor-portal"],
     ];
-
     return redirects.map(([source, destination]) => ({
       source,
       destination,
