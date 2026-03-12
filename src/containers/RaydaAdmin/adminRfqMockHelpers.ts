@@ -1,6 +1,9 @@
-import { companyNames, countries, deviceTemplates, vendorNames } from "./adminRfqConstants";
+import { companyNames, countries, deviceTemplates, vendors } from "./adminRfqConstants";
+import { buildDeviceResponses } from "./adminRfqMockDeviceResponses";
 import { mockStatuses, vendorNoteOptions } from "./adminRfqMockConstants";
-import type { CurationData, DeviceResponseType, RFQ, RFQDevice, RFQStatus, VendorDeviceResponse, VendorResponse } from "./adminRfqTypes";
+import { mockExchangeRates } from "./adminRfqMockRates";
+import type { CurationData, RFQ, RFQDevice, RFQStatus, VendorResponse } from "./adminRfqTypes";
+import { countryToCurrency, customerCurrencyForCountry } from "./RFQManagementDetail/utils/currencyMappings";
 
 function seededRandom(seed: number) {
   let value = seed;
@@ -27,52 +30,30 @@ function buildDevices(index: number, random: () => number): RFQDevice[] {
   });
 }
 
-function buildDeviceResponses(devices: RFQDevice[], random: () => number): VendorDeviceResponse[] {
-  return devices.map((device) => {
-    const template = deviceTemplates.find((item) => item.name === device.name);
-    const referencePrice = device.unitBudget ?? template?.basePrice ?? 1000;
-    const responseRoll = random();
-
-    if (responseRoll < 0.7) {
-      return { type: "quoted" as DeviceResponseType, quotedPrice: Math.round(referencePrice * (0.8 + random() * 0.4)) };
-    }
-
-    if (responseRoll < 0.9) {
-      return {
-        type: "alternative" as DeviceResponseType,
-        alternativeName: device.name.replace("Pro", "Air").replace("Ultra", "Standard"),
-        alternativePrice: Math.round(referencePrice * (0.6 + random() * 0.3)),
-        alternativeSpecs:
-          template?.specs?.replace("Pro", "").replace("i9", "i7").replace("32GB", "16GB").replace("1TB", "512GB").replace("256GB", "128GB").trim() ??
-          "Standard configuration",
-      };
-    }
-
-    return { type: "unavailable" as DeviceResponseType, unavailableReason: "Out of stock in region" };
-  });
-}
-
-function buildVendorResponses(devices: RFQDevice[], index: number, createdDate: Date, random: () => number, status: RFQStatus): VendorResponse[] {
+function buildVendorResponses(devices: RFQDevice[], index: number, createdDate: Date, random: () => number, status: RFQStatus, rfqCountry: string): VendorResponse[] {
   if (status === "pending_vendors") return [];
 
   const manyVendors = index % 5 === 2;
   const count = manyVendors ? Math.floor(random() * 5) + 6 : Math.floor(random() * 3) + 1;
   const usedNames = new Set<string>();
+  const currency = countryToCurrency[rfqCountry] ?? "USD";
+  const fxRate = mockExchangeRates[currency];
 
   return Array.from({ length: count }, (_, vendorIndex) => {
-    let vendorName = vendorNames[vendorIndex % vendorNames.length];
-    if (usedNames.has(vendorName)) vendorName = `${vendorName} (${Math.floor(vendorIndex / vendorNames.length) + 1})`;
+    const vendor = vendors[vendorIndex % vendors.length];
+    let vendorName = vendor.name;
+    if (usedNames.has(vendorName)) vendorName = `${vendorName} (${Math.floor(vendorIndex / vendors.length) + 1})`;
     usedNames.add(vendorName);
 
-    const deviceResponses = buildDeviceResponses(devices, random);
+    const deviceResponses = buildDeviceResponses(devices, random, fxRate);
     const totalPrice = deviceResponses.reduce(
-      (sum, response, deviceIndex) =>
-        sum + ((response.type === "quoted" ? response.quotedPrice : response.alternativePrice) ?? 0) * devices[deviceIndex].quantity,
+      (sum, response, di) => sum + ((response.type === "quoted" ? response.quotedPrice : response.alternativePrice) ?? 0) * devices[di].quantity,
       0,
     );
     const respondedAt = new Date(createdDate.getTime() + (2 + Math.floor(random() * 22)) * 3600000 + Math.floor(random() * 60) * 60000).toISOString();
 
     return {
+      currency,
       vendorId: `vendor-${vendorIndex + 1}-${index}`,
       vendorName,
       deviceResponses,
@@ -89,37 +70,33 @@ function applyOutcomeData(rfq: RFQ, random: () => number) {
   }
 
   const selectedVendor = rfq.vendorResponses[0];
+  const vendorCur = selectedVendor.currency;
+  const customerCur = rfq.customerCurrency;
+  const fxRate = mockExchangeRates[customerCur] / mockExchangeRates[vendorCur];
+
   const curation: CurationData = {
     selectedVendorId: selectedVendor.vendorId,
+    vendorCurrency: vendorCur,
+    customerCurrency: customerCur,
+    exchangeRate: fxRate,
     devicePricing: rfq.devices.map((_, index) => {
       const response = selectedVendor.deviceResponses[index];
       const vendorPrice = response.type === "quoted" ? response.quotedPrice! : response.type === "alternative" ? response.alternativePrice! : 0;
-      return { mode: "markup" as const, markupPercent: 10, fixedPrice: Math.round(vendorPrice * 1.1), isUnavailable: response.type === "unavailable" };
+      const converted = Math.round(vendorPrice * fxRate);
+      return { mode: "markup" as const, markupPercent: 10, fixedPrice: Math.round(converted * 1.1), isUnavailable: response.type === "unavailable" };
     }),
     notes: selectedVendor.vendorNote ?? "",
   };
 
   rfq.curation = curation;
   rfq.sentAt = new Date(
-    Math.max(...rfq.vendorResponses.map((response) => new Date(response.respondedAt).getTime())) +
-      (1 + Math.floor(random() * 3)) * 3600000 +
-      Math.floor(random() * 60) * 60000,
+    Math.max(...rfq.vendorResponses.map((r) => new Date(r.respondedAt).getTime())) + (1 + Math.floor(random() * 3)) * 3600000 + Math.floor(random() * 60) * 60000,
   ).toISOString();
   if (rfq.status === "fully_accepted") rfq.acceptedDevices = rfq.devices.map(() => true);
   if (rfq.status === "partially_accepted")
-    rfq.acceptedDevices = rfq.devices.map((_, index) =>
-      index === 0 ? true : index === rfq.devices.length - 1 && rfq.devices.length > 1 ? false : random() > 0.4,
-    );
+    rfq.acceptedDevices = rfq.devices.map((_, i) => (i === 0 ? true : i === rfq.devices.length - 1 && rfq.devices.length > 1 ? false : random() > 0.4));
   if (rfq.status === "customer_rejected")
-    rfq.rejectionReason = [
-      "Price is too high",
-      "Found an alternative",
-      "No longer needed",
-      "Price is too high",
-      "Found an alternative",
-      "No longer needed",
-      "Other: Management decided to defer all hardware purchases until Q3.",
-    ][parseInt(rfq.id.slice(-1), 10) % 7];
+    rfq.rejectionReason = ["Price is too high", "Found an alternative", "No longer needed", "Price is too high", "Found an alternative", "No longer needed", "Other: Management decided to defer all hardware purchases until Q3."][parseInt(rfq.id.slice(-1), 10) % 7];
   if (rfq.status === "fully_accepted") rfq.customerDecision = "fully_accepted";
   if (rfq.status === "partially_accepted") rfq.customerDecision = "partially_accepted";
   if (rfq.status === "customer_rejected") rfq.customerDecision = "rejected";
@@ -131,16 +108,18 @@ function buildBaseRfq(index: number, random: () => number): RFQ {
   const devices = buildDevices(index, random);
   const status = mockStatuses[Math.floor(random() * mockStatuses.length)];
   const createdDate = new Date(2026, 1, Math.floor(random() * 20) + 1, Math.floor(random() * 14) + 7, Math.floor(random() * 60));
+  const country = countries[Math.floor(random() * countries.length)];
 
   return {
     id: `RFQ-${String(26700 + index).padStart(5, "0")}`,
     company: companyNames[Math.floor(random() * companyNames.length)],
     devices,
-    country: countries[Math.floor(random() * countries.length)],
+    country,
+    customerCurrency: customerCurrencyForCountry(country),
     budget: devices.reduce((sum, device) => sum + (device.unitBudget ?? 0) * device.quantity, 0),
     status,
     createdAt: createdDate.toISOString(),
-    vendorResponses: buildVendorResponses(devices, index, createdDate, random, status),
+    vendorResponses: buildVendorResponses(devices, index, createdDate, random, status, country),
   };
 }
 

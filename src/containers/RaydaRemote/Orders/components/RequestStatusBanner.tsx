@@ -12,7 +12,7 @@ function RequestStatusBanner({ hasUnavailableItems, request }: { hasUnavailableI
     },
     expired: {
       color: "text-[#535862]",
-      description: "This quote was not confirmed or declined within 3 days and has expired. Please submit a new request if you still need these items.",
+      description: "This quote was not confirmed or declined within 5 days and has expired. Please submit a new request if you still need these items.",
       icon: Clock,
       styles: "border-[#e9eaeb] bg-[#fafafa]",
       title: "Quote Expired",

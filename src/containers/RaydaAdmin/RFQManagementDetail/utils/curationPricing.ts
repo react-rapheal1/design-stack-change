@@ -1,5 +1,6 @@
-import type { CurationData, RFQ, VendorResponse } from "../../shared";
+import type { CurationData, CurrencyCode, CustomerCurrencyCode, RFQ, VendorResponse } from "../../shared";
 
+/** Returns the vendor unit price in vendor currency for a given device index. */
 function getVendorUnitPrice(vendor: VendorResponse, index: number): number {
   const response = vendor.deviceResponses[index];
   if (!response) return 0;
@@ -8,14 +9,27 @@ function getVendorUnitPrice(vendor: VendorResponse, index: number): number {
   return 0;
 }
 
+/** Returns the admin unit price in customer currency for a given device index. */
 function getAdminUnitPrice(curation: CurationData, vendor: VendorResponse, index: number): number {
   const pricing = curation.devicePricing[index];
   if (!pricing || pricing.isUnavailable) return 0;
   if (pricing.mode === "fixed") return pricing.fixedPrice;
-  return Math.round(getVendorUnitPrice(vendor, index) * (1 + pricing.markupPercent / 100));
+  const vendorPrice = getVendorUnitPrice(vendor, index);
+  const converted = Math.round(vendorPrice * curation.exchangeRate);
+  return Math.round(converted * (1 + pricing.markupPercent / 100));
 }
 
-function computeCurationTotals(rfq: RFQ, curation: CurationData, vendor: VendorResponse) {
+interface CurationTotals {
+  adminTotal: number;
+  customerCurrency: CustomerCurrencyCode;
+  markupPercent: string;
+  totalMarkup: number;
+  vendorCurrency: CurrencyCode;
+  vendorTotal: number;
+  vendorTotalConverted: number;
+}
+
+function computeCurationTotals(rfq: RFQ, curation: CurationData, vendor: VendorResponse): CurationTotals {
   let vendorTotal = 0;
   let adminTotal = 0;
 
@@ -25,10 +39,20 @@ function computeCurationTotals(rfq: RFQ, curation: CurationData, vendor: VendorR
     adminTotal += getAdminUnitPrice(curation, vendor, index) * device.quantity;
   });
 
-  const totalMarkup = adminTotal - vendorTotal;
-  const markupPercent = vendorTotal > 0 ? ((totalMarkup / vendorTotal) * 100).toFixed(1) : "0.0";
+  const vendorTotalConverted = Math.round(vendorTotal * curation.exchangeRate);
+  const totalMarkup = adminTotal - vendorTotalConverted;
+  const markupPercent = vendorTotalConverted > 0 ? ((totalMarkup / vendorTotalConverted) * 100).toFixed(1) : "0.0";
 
-  return { vendorTotal, adminTotal, totalMarkup, markupPercent };
+  return {
+    vendorTotal,
+    vendorTotalConverted,
+    adminTotal,
+    totalMarkup,
+    markupPercent,
+    vendorCurrency: curation.vendorCurrency,
+    customerCurrency: curation.customerCurrency,
+  };
 }
 
+export type { CurationTotals };
 export { computeCurationTotals, getAdminUnitPrice, getVendorUnitPrice };

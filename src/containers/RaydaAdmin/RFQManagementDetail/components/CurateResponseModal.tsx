@@ -1,7 +1,8 @@
 import { AlertCircle, ArrowLeft, ArrowRight, ClipboardCheck } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
-import { CurationData, RFQ, formatCurrency } from "../../shared";
+import { CurationData, RFQ } from "../../shared";
 import { useCurateResponse } from "../hooks/useCurateResponse";
+import { ConfirmSendDescription } from "./ConfirmSendDescription";
 import { CurateResponseDeviceCard } from "./CurateResponseDeviceCard";
 import { CurateResponseNotesCard } from "./CurateResponseNotesCard";
 import { CurateResponsePrompt, CurateResponsePromptActions } from "./CurateResponsePrompt";
@@ -27,7 +28,7 @@ function CurateResponseModal({
   return (
     <>
       <div className="fixed inset-0 z-50 flex flex-col bg-primary">
-        <div className="flex items-center justify-between border-b border-secondary py-4 page-px">
+        <div className="flex flex-col gap-3 border-b border-secondary py-4 page-px sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={() => (state.hasChanges ? state.setShowDiscardModal(true) : onClose())}
@@ -36,11 +37,11 @@ function CurateResponseModal({
             <ArrowLeft className="size-4" />
             Back to Review
           </button>
-          <div className="text-center">
+          <div className="sm:text-center">
             <h2 className="text-lg font-semibold text-primary">Curate Response for {rfq.id}</h2>
             <p className="text-sm text-tertiary">Vendor: {vendor.vendorName}</p>
           </div>
-          <div className="w-32" />
+          <div className="hidden w-32 sm:block" />
         </div>
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl py-6 page-px">
@@ -49,6 +50,8 @@ function CurateResponseModal({
                 state.devicePricing[index] ? (
                   <CurateResponseDeviceCard
                     key={index}
+                    customerCurrency={state.customerCurrency}
+                    exchangeRate={state.exchangeRate}
                     getCustomerPrice={state.getCustomerPrice}
                     getEffectiveMarkup={state.getEffectiveMarkup}
                     getVendorPrice={state.getVendorPrice}
@@ -69,10 +72,13 @@ function CurateResponseModal({
               />
               <CurateResponseSummary
                 customerBudgetTotal={state.customerBudgetTotal}
+                customerCurrency={state.customerCurrency}
                 customerPriceTotal={state.customerPriceTotal}
                 totalMarkup={state.totalMarkup}
                 totalMarkupPercent={state.totalMarkupPercent}
+                vendorCostConverted={state.vendorCostConverted}
                 vendorCostTotal={state.vendorCostTotal}
+                vendorCurrency={state.vendorCurrency}
               />
             </div>
           </div>
@@ -110,26 +116,13 @@ function CurateResponseModal({
         icon={ClipboardCheck}
         title="Send Response to Customer?"
         description={
-          <>
-            <p>You&apos;re about to send a curated response for {rfq.id}.</p>
-            <div className="mt-3 rounded-lg bg-secondary p-3 text-left text-sm">
-              <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between">
-                  <span className="text-tertiary">Devices quoted</span>
-                  <span className="font-medium text-primary">{state.quotedDeviceCount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-tertiary">Vendor</span>
-                  <span className="font-medium text-primary">{vendor.vendorName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-tertiary">Admin total</span>
-                  <span className="font-semibold text-primary">{formatCurrency(state.customerPriceTotal)}</span>
-                </div>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-tertiary">The customer will be notified and can accept or reject.</p>
-          </>
+          <ConfirmSendDescription
+            adminTotal={state.customerPriceTotal}
+            customerCurrency={state.customerCurrency}
+            quotedDeviceCount={state.quotedDeviceCount}
+            rfqId={rfq.id}
+            vendorName={vendor.vendorName}
+          />
         }
         actions={
           <CurateResponsePromptActions

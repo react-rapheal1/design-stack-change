@@ -67,7 +67,7 @@ function RFQManagementTable({
               <Table.Cell>
                 <DeviceCountDisplay devices={rfq.devices} />
               </Table.Cell>
-              <Table.Cell className="text-primary">{rfq.budget > 0 ? formatCurrency(rfq.budget) : <span className="text-tertiary">—</span>}</Table.Cell>
+              <Table.Cell className="text-primary">{rfq.budget > 0 ? formatCurrency(rfq.budget, rfq.customerCurrency) : <span className="text-tertiary">—</span>}</Table.Cell>
               <Table.Cell>
                 <div className="flex items-center gap-1.5">
                   <CountryFlag country={rfq.country} />

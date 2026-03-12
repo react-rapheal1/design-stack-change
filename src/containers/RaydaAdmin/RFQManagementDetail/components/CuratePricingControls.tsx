@@ -2,9 +2,14 @@ import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/but
 import { Checkbox } from "@/components/base/checkbox/checkbox";
 import { InputBase } from "@/components/base/input/input";
 import { InputGroup } from "@/components/base/input/input-group";
+import type { CustomerCurrencyCode } from "../../shared";
 import { formatCurrency } from "../../shared";
 
+const currencySymbol: Record<CustomerCurrencyCode, string> = { USD: "$", GBP: "£", EUR: "€" };
+
 function CuratePricingControls({
+  customerCurrency = "USD",
+  exchangeRate = 1,
   getCustomerPrice,
   getEffectiveMarkup,
   index,
@@ -12,6 +17,8 @@ function CuratePricingControls({
   pricing,
   vendorPrice,
 }: {
+  customerCurrency?: CustomerCurrencyCode;
+  exchangeRate?: number;
   getCustomerPrice: (index: number) => number;
   getEffectiveMarkup: (index: number) => number;
   index: number;
@@ -37,7 +44,8 @@ function CuratePricingControls({
               onSelectionChange={(keys) => {
                 const selected = [...keys][0] as string;
                 if (selected?.startsWith("markup")) {
-                  onUpdate(index, { fixedPrice: Math.round(vendorPrice * (1 + pricing.markupPercent / 100)), mode: "markup" });
+                  const converted = Math.round(vendorPrice * exchangeRate);
+                  onUpdate(index, { fixedPrice: Math.round(converted * (1 + pricing.markupPercent / 100)), mode: "markup" });
                   return;
                 }
                 onUpdate(index, { mode: "fixed" });
@@ -56,7 +64,8 @@ function CuratePricingControls({
                   value={String(pricing.markupPercent)}
                   onChange={(value) => {
                     const markup = Number(value) || 0;
-                    onUpdate(index, { fixedPrice: Math.round(vendorPrice * (1 + markup / 100)), markupPercent: markup });
+                    const converted = Math.round(vendorPrice * exchangeRate);
+                    onUpdate(index, { fixedPrice: Math.round(converted * (1 + markup / 100)), markupPercent: markup });
                   }}
                   aria-label="Markup percentage"
                   trailingAddon={<InputGroup.Prefix position="trailing">%</InputGroup.Prefix>}
@@ -65,7 +74,7 @@ function CuratePricingControls({
                 </InputGroup>
               </div>
               <span className="text-sm text-quaternary">=</span>
-              <span className="text-sm font-semibold text-primary">{formatCurrency(getCustomerPrice(index))}/unit</span>
+              <span className="text-sm font-semibold text-primary">{formatCurrency(getCustomerPrice(index), customerCurrency)}/unit</span>
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-3">
@@ -74,14 +83,15 @@ function CuratePricingControls({
                 <InputGroup
                   className="w-28"
                   value={String(pricing.fixedPrice)}
-                  onChange={(value) =>
+                  onChange={(value) => {
+                    const converted = Math.round(vendorPrice * exchangeRate);
                     onUpdate(index, {
                       fixedPrice: Number(value) || 0,
-                      markupPercent: vendorPrice > 0 ? Math.round((((Number(value) || 0) - vendorPrice) / vendorPrice) * 100) : 0,
-                    })
-                  }
+                      markupPercent: converted > 0 ? Math.round((((Number(value) || 0) - converted) / converted) * 100) : 0,
+                    });
+                  }}
                   aria-label="Customer price"
-                  leadingAddon={<InputGroup.Prefix>$</InputGroup.Prefix>}
+                  leadingAddon={<InputGroup.Prefix>{currencySymbol[customerCurrency]}</InputGroup.Prefix>}
                 >
                   <InputBase inputMode="numeric" pattern="[0-9]*" placeholder="0" />
                 </InputGroup>

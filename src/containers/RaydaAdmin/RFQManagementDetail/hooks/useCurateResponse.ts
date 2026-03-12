@@ -1,7 +1,11 @@
-import { useState } from "react";
-import { CurationData, CurationDevicePricing, RFQ } from "../../shared";
+"use client";
 
-function createInitialPricing(rfq: RFQ | null, vendorId: string): CurationDevicePricing[] {
+import { useState } from "react";
+
+import type { CurationData, CurationDevicePricing, CurrencyCode, CustomerCurrencyCode, RFQ } from "../../shared";
+import { useExchangeRates } from "./useExchangeRates";
+
+function createInitialPricing(rfq: RFQ | null, vendorId: string, fxRate: number): CurationDevicePricing[] {
   const vendor = rfq?.vendorResponses.find((item) => item.vendorId === vendorId);
   if (!rfq || !vendor) return [];
   if (rfq.curation?.selectedVendorId === vendorId) return rfq.curation.devicePricing;
@@ -9,7 +13,8 @@ function createInitialPricing(rfq: RFQ | null, vendorId: string): CurationDevice
   return rfq.devices.map((_, index) => {
     const response = vendor.deviceResponses[index];
     const vendorPrice = response.type === "quoted" ? response.quotedPrice! : response.type === "alternative" ? response.alternativePrice! : 0;
-    return { mode: "markup" as const, markupPercent: 10, fixedPrice: Math.round(vendorPrice * 1.1), isUnavailable: response.type === "unavailable" };
+    const converted = Math.round(vendorPrice * fxRate);
+    return { mode: "markup" as const, markupPercent: 10, fixedPrice: Math.round(converted * 1.1), isUnavailable: response.type === "unavailable" };
   });
 }
 
@@ -20,16 +25,22 @@ function createInitialNotes(rfq: RFQ | null, vendorId: string) {
 }
 
 function useCurateResponse({ rfq, vendorId }: { rfq: RFQ | null; vendorId: string }) {
-  const [devicePricing, setDevicePricing] = useState<CurationDevicePricing[]>(() => createInitialPricing(rfq, vendorId));
+  const vendor = rfq?.vendorResponses.find((item) => item.vendorId === vendorId);
+  const vendorCurrency: CurrencyCode = vendor?.currency ?? "USD";
+  const customerCurrency: CustomerCurrencyCode = rfq?.customerCurrency ?? "USD";
+  const { loading: ratesLoading, rates } = useExchangeRates(vendorCurrency);
+
+  const fxRate = rates && vendorCurrency !== customerCurrency ? (rates[customerCurrency] ?? 1) : 1;
+
+  const [devicePricing, setDevicePricing] = useState<CurationDevicePricing[]>(() => createInitialPricing(rfq, vendorId, fxRate));
   const [hasChanges, setHasChanges] = useState(false);
   const [notes, setNotes] = useState(() => createInitialNotes(rfq, vendorId));
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
-  const vendor = rfq?.vendorResponses.find((item) => item.vendorId === vendorId);
 
   const updatePricing = (index: number, updates: Partial<CurationDevicePricing>) => {
     setHasChanges(true);
-    setDevicePricing((prev) => prev.map((pricing, currentIndex) => (currentIndex === index ? { ...pricing, ...updates } : pricing)));
+    setDevicePricing((prev) => prev.map((p, i) => (i === index ? { ...p, ...updates } : p)));
   };
 
   const getVendorPrice = (index: number) => {
@@ -44,35 +55,50 @@ function useCurateResponse({ rfq, vendorId }: { rfq: RFQ | null; vendorId: strin
     const pricing = devicePricing[index];
     if (!pricing || pricing.isUnavailable) return 0;
     if (pricing.mode === "fixed") return pricing.fixedPrice;
-    return Math.round(getVendorPrice(index) * (1 + pricing.markupPercent / 100));
+    const converted = Math.round(getVendorPrice(index) * fxRate);
+    return Math.round(converted * (1 + pricing.markupPercent / 100));
   };
 
   const getEffectiveMarkup = (index: number) => {
     const vendorPrice = getVendorPrice(index);
     const pricing = devicePricing[index];
     if (!pricing || pricing.isUnavailable || vendorPrice === 0) return 0;
-    return pricing.mode === "fixed" ? Math.round(((pricing.fixedPrice - vendorPrice) / vendorPrice) * 100) : pricing.markupPercent;
+    if (pricing.mode === "fixed") {
+      const converted = Math.round(vendorPrice * fxRate);
+      return converted > 0 ? Math.round(((pricing.fixedPrice - converted) / converted) * 100) : 0;
+    }
+    return pricing.markupPercent;
   };
 
-  const vendorCostTotal =
-    rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + getVendorPrice(index) * device.quantity), 0) ?? 0;
-  const customerPriceTotal =
-    rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + getCustomerPrice(index) * device.quantity), 0) ?? 0;
-  const customerBudgetTotal =
-    rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + (device.unitBudget ?? 0) * device.quantity), 0) ?? 0;
-  const totalMarkup = customerPriceTotal - vendorCostTotal;
+  const vendorCostTotal = rfq?.devices.reduce((s, d, i) => (devicePricing[i]?.isUnavailable ? s : s + getVendorPrice(i) * d.quantity), 0) ?? 0;
+  const customerPriceTotal = rfq?.devices.reduce((s, d, i) => (devicePricing[i]?.isUnavailable ? s : s + getCustomerPrice(i) * d.quantity), 0) ?? 0;
+  const customerBudgetTotal = rfq?.devices.reduce((s, d, i) => (devicePricing[i]?.isUnavailable ? s : s + (d.unitBudget ?? 0) * d.quantity), 0) ?? 0;
+  const vendorCostConverted = Math.round(vendorCostTotal * fxRate);
+  const totalMarkup = customerPriceTotal - vendorCostConverted;
+
+  const curation: CurationData = {
+    devicePricing,
+    notes,
+    selectedVendorId: vendorId,
+    vendorCurrency,
+    customerCurrency,
+    exchangeRate: fxRate,
+  };
 
   return {
-    curation: { devicePricing, notes, selectedVendorId: vendorId } as CurationData,
+    curation,
     customerBudgetTotal,
+    customerCurrency,
     customerPriceTotal,
     devicePricing,
+    exchangeRate: fxRate,
     getCustomerPrice,
     getEffectiveMarkup,
     getVendorPrice,
     hasChanges,
     notes,
-    quotedDeviceCount: devicePricing.filter((pricing) => !pricing.isUnavailable).length,
+    quotedDeviceCount: devicePricing.filter((p) => !p.isUnavailable).length,
+    ratesLoading,
     setHasChanges,
     setNotes,
     setShowConfirmModal,
@@ -80,10 +106,12 @@ function useCurateResponse({ rfq, vendorId }: { rfq: RFQ | null; vendorId: strin
     showConfirmModal,
     showDiscardModal,
     totalMarkup,
-    totalMarkupPercent: vendorCostTotal > 0 ? ((totalMarkup / vendorCostTotal) * 100).toFixed(1) : "0.0",
+    totalMarkupPercent: vendorCostConverted > 0 ? ((totalMarkup / vendorCostConverted) * 100).toFixed(1) : "0.0",
     updatePricing,
     vendor,
+    vendorCostConverted,
     vendorCostTotal,
+    vendorCurrency,
   };
 }
 

@@ -1,3 +1,6 @@
+export type CustomerCurrencyCode = "USD" | "GBP" | "EUR";
+export type CurrencyCode = CustomerCurrencyCode | "NGN" | "INR" | "ZAR" | "KES" | "CAD";
+
 export type RFQStatus = "pending_vendors" | "vendors_responded" | "response_sent" | "fully_accepted" | "partially_accepted" | "customer_rejected" | "expired";
 
 export type DeviceResponseType = "quoted" | "alternative" | "unavailable";
@@ -12,6 +15,7 @@ export interface VendorDeviceResponse {
 }
 
 export interface VendorResponse {
+  currency: CurrencyCode;
   deviceResponses: VendorDeviceResponse[];
   respondedAt: string;
   totalPrice: number;
@@ -35,9 +39,12 @@ export interface CurationDevicePricing {
 }
 
 export interface CurationData {
+  customerCurrency: CustomerCurrencyCode;
   devicePricing: CurationDevicePricing[];
+  exchangeRate: number;
   notes: string;
   selectedVendorId: string;
+  vendorCurrency: CurrencyCode;
 }
 
 export interface RFQ {
@@ -45,6 +52,7 @@ export interface RFQ {
   company: string;
   country: string;
   createdAt: string;
+  customerCurrency: CustomerCurrencyCode;
   devices: RFQDevice[];
   id: string;
   status: RFQStatus;

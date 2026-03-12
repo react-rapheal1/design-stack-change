@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
@@ -16,7 +17,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {projects.map(({ description, href, icon, name, status }) => (
+          {projects.map(({ description, href, icon, links, name, status }) => (
             <article key={name} className="flex flex-col gap-6 rounded-3xl border border-secondary bg-primary p-8 shadow-xs">
               <div className="flex items-start justify-between gap-4">
                 <FeaturedIcon color="brand" icon={icon} size="xl" theme="modern" />
@@ -26,6 +27,19 @@ export default function HomePage() {
               <div className="flex flex-col gap-3">
                 <h2 className="text-display-xs font-semibold text-primary">{name}</h2>
                 <p className="text-base text-tertiary">{description}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    className="rounded-lg border border-secondary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:bg-primary_hover hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </div>
 
               <Button href={href} target="_blank" size="lg" className="w-full justify-center sm:w-auto" iconTrailing={ArrowUpRight}>

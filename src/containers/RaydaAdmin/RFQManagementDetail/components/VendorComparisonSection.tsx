@@ -4,7 +4,7 @@ import { RFQ, VendorResponse } from "../../shared";
 import { getAdminUnitPrice } from "../utils/curationPricing";
 import { VendorDeviceResponseCard } from "./VendorDeviceResponseCard";
 
-function VendorComparisonSection({ rfq, selectedVendorId, vendors }: { rfq: RFQ; selectedVendorId: string; vendors: VendorResponse[] }) {
+function VendorComparisonSection({ exchangeRate, rfq, selectedVendorId, vendors }: { exchangeRate: number; rfq: RFQ; selectedVendorId: string; vendors: VendorResponse[] }) {
   const showAcceptance = rfq.customerDecision === "partially_accepted" || rfq.customerDecision === "fully_accepted";
   const curation = rfq.curation;
   const selectedVendor = vendors.find((v) => v.vendorId === selectedVendorId);
@@ -36,6 +36,8 @@ function VendorComparisonSection({ rfq, selectedVendorId, vendors }: { rfq: RFQ;
                 <VendorDeviceResponseCard
                   key={vendor.vendorId}
                   adminUnitPrice={adminPrice}
+                  customerCurrency={rfq.customerCurrency}
+                  exchangeRate={exchangeRate}
                   response={vendor.deviceResponses[deviceIndex]}
                   selected={isSelected}
                   vendor={vendor}

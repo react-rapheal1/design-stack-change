@@ -29,9 +29,7 @@ function RFQDetailHeader({ rfq }: { rfq: RFQ }) {
         </nav>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <FeaturedIcon color="brand" theme="light" size="md">
-              <ClipboardCheck />
-            </FeaturedIcon>
+            <FeaturedIcon color="brand" icon={ClipboardCheck} theme="modern-neue" size="md" />
             <div>
               <h1 className="text-xl font-semibold text-primary sm:text-2xl">{rfq.id}</h1>
               <p className="text-sm text-tertiary">{rfq.company}</p>

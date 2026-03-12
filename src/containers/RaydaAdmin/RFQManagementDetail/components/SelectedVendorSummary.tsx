@@ -22,12 +22,12 @@ function SelectedVendorSummary({ vendor, rfq }: { vendor: VendorResponse; rfq?: 
           {totals && (
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-tertiary">Admin Price</span>
-              <span className="text-sm font-semibold text-brand-secondary">{formatCurrency(totals.adminTotal)}</span>
+              <span className="text-sm font-semibold text-brand-secondary">{formatCurrency(totals.adminTotal, totals.customerCurrency)}</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-tertiary">Vendor Price</span>
-            <span className="text-sm font-semibold text-primary">{formatCurrency(vendor.totalPrice)}</span>
+            <span className="text-sm font-semibold text-primary">{formatCurrency(vendor.totalPrice, vendor.currency)}</span>
           </div>
         </div>
       </div>

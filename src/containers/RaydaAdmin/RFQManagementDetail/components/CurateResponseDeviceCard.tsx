@@ -1,32 +1,18 @@
-import type { ComponentType } from "react";
-import { AlertTriangle, Container, Headphones01, Keyboard01, Laptop01, Monitor01, Mouse, Phone01, Speaker01, Tablet01, VideoRecorder, XCircle } from "@untitledui/icons";
+import { AlertTriangle, Container, XCircle } from "@untitledui/icons";
 import { Badge } from "@/components/base/badges/badges";
 import { cx } from "@/utils/cx";
+import type { CustomerCurrencyCode } from "../../shared";
 import { RFQ, VendorResponse, formatCurrency } from "../../shared";
+import { assetTypeIcons } from "../utils/deviceIcons";
 import { CuratePricingControls } from "./CuratePricingControls";
 import { ResponseTypeBadge } from "./ResponseTypeBadge";
 
-type IconComponent = ComponentType<{ className?: string }>;
-
-const assetTypeIcons: Record<string, IconComponent> = {
-  Accessory: Keyboard01,
-  Audio: Headphones01,
-  Conference: VideoRecorder,
-  Furniture: Container,
-  Laptop: Laptop01,
-  Monitor: Monitor01,
-  Peripheral: Mouse,
-  Phone: Phone01,
-  Speaker: Speaker01,
-  Tablet: Tablet01,
-};
-
-function BudgetDelta({ vendorPrice, budget }: { vendorPrice: number; budget: number }) {
-  const diff = vendorPrice - budget;
+function BudgetDelta({ convertedVendorPrice, budget, currency }: { convertedVendorPrice: number; budget: number; currency: CustomerCurrencyCode }) {
+  const diff = convertedVendorPrice - budget;
   if (diff <= 0) return null;
   return (
     <Badge size="sm" color="warning" type="pill-color">
-      +{formatCurrency(diff)} over budget
+      +{formatCurrency(diff, currency)} over budget
     </Badge>
   );
 }
@@ -41,6 +27,8 @@ function QuoteRow({ label, value, isMuted }: { label: string; value: string; isM
 }
 
 function CurateResponseDeviceCard({
+  customerCurrency,
+  exchangeRate,
   getCustomerPrice,
   getEffectiveMarkup,
   getVendorPrice,
@@ -50,6 +38,8 @@ function CurateResponseDeviceCard({
   updatePricing,
   vendor,
 }: {
+  customerCurrency: CustomerCurrencyCode;
+  exchangeRate: number;
   getCustomerPrice: (index: number) => number;
   getEffectiveMarkup: (index: number) => number;
   getVendorPrice: (index: number) => number;
@@ -99,13 +89,25 @@ function CurateResponseDeviceCard({
           <div className="flex flex-col gap-5">
             {/* Quote breakdown */}
             <div className="divide-y divide-secondary overflow-hidden rounded-lg border border-secondary bg-secondary">
-              <QuoteRow label="Vendor Quote" value={`${formatCurrency(vendorPrice)}/unit`} />
+              <div className="flex items-center justify-between px-3.5 py-2.5">
+                <span className="text-sm text-tertiary">Vendor Quote</span>
+                <div className="text-right">
+                  {vendor.currency !== customerCurrency ? (
+                    <>
+                      <span className="text-sm font-semibold text-primary">{formatCurrency(Math.round(vendorPrice * exchangeRate), customerCurrency)}/unit</span>
+                      <p className="text-xs text-quaternary">{formatCurrency(vendorPrice, vendor.currency)}/unit</p>
+                    </>
+                  ) : (
+                    <span className="text-sm font-semibold text-primary">{formatCurrency(vendorPrice, vendor.currency)}/unit</span>
+                  )}
+                </div>
+              </div>
               {device.unitBudget != null && (
                 <div className="flex items-center justify-between bg-primary px-3.5 py-2.5">
                   <span className="text-sm text-tertiary">Customer Budget</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-tertiary">{formatCurrency(device.unitBudget)}/unit</span>
-                    <BudgetDelta vendorPrice={vendorPrice} budget={device.unitBudget} />
+                    <span className="text-sm text-tertiary">{formatCurrency(device.unitBudget, customerCurrency)}/unit</span>
+                    <BudgetDelta convertedVendorPrice={Math.round(vendorPrice * exchangeRate)} budget={device.unitBudget} currency={customerCurrency} />
                   </div>
                 </div>
               )}
@@ -125,6 +127,8 @@ function CurateResponseDeviceCard({
 
             {/* Pricing controls */}
             <CuratePricingControls
+              customerCurrency={customerCurrency}
+              exchangeRate={exchangeRate}
               getCustomerPrice={getCustomerPrice}
               getEffectiveMarkup={getEffectiveMarkup}
               index={index}

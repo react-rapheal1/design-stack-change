@@ -13,18 +13,20 @@ const countryCodeMap: Record<string, string> = {
   India: "IN",
 };
 
-const vendorNames = [
-  "TechSupply Co",
-  "GlobalDevices Ltd",
-  "PrimeHardware Inc",
-  "DevicePro Solutions",
-  "IT Warehouse",
-  "ByteSource Ltd",
-  "CoreTech Partners",
-  "EquipNet Africa",
-  "SilverPeak Devices",
-  "VendorHub Inc",
+const vendors = [
+  { name: "TechSupply Co", country: "Nigeria" },
+  { name: "GlobalDevices Ltd", country: "United Kingdom" },
+  { name: "PrimeHardware Inc", country: "United States" },
+  { name: "DevicePro Solutions", country: "India" },
+  { name: "IT Warehouse", country: "Canada" },
+  { name: "ByteSource Ltd", country: "Germany" },
+  { name: "CoreTech Partners", country: "South Africa" },
+  { name: "EquipNet Africa", country: "Kenya" },
+  { name: "SilverPeak Devices", country: "United States" },
+  { name: "VendorHub Inc", country: "India" },
 ];
+
+const vendorNames = vendors.map((v) => v.name);
 
 const companyNames = [
   "Acme Corp",
@@ -76,4 +78,4 @@ const navItems = [
   { label: "Services", href: "#" },
 ];
 
-export { companyNames, countries, countryCodeMap, defaultFilters, deviceTemplates, filterTabs, navItems, vendorNames };
+export { companyNames, countries, countryCodeMap, defaultFilters, deviceTemplates, filterTabs, navItems, vendorNames, vendors };
