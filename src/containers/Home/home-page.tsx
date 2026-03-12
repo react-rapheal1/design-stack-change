@@ -28,7 +28,7 @@ export default function HomePage() {
                 <p className="text-base text-tertiary">{description}</p>
               </div>
 
-              <Button href={href} size="lg" className="w-full justify-center sm:w-auto" iconTrailing={ArrowUpRight}>
+              <Button href={href} target="_blank" size="lg" className="w-full justify-center sm:w-auto" iconTrailing={ArrowUpRight}>
                 Open workspace
               </Button>
             </article>

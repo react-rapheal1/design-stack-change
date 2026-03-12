@@ -68,6 +68,7 @@ function CurateResponseModal({
                 }}
               />
               <CurateResponseSummary
+                customerBudgetTotal={state.customerBudgetTotal}
                 customerPriceTotal={state.customerPriceTotal}
                 totalMarkup={state.totalMarkup}
                 totalMarkupPercent={state.totalMarkupPercent}
@@ -87,6 +88,7 @@ function CurateResponseModal({
       </div>
       <CurateResponsePrompt
         isOpen={state.showDiscardModal}
+        color="error"
         icon={AlertCircle}
         title="Discard unsaved changes?"
         description="You have unsaved pricing changes. Closing now will discard all modifications you've made."
@@ -104,6 +106,7 @@ function CurateResponseModal({
       />
       <CurateResponsePrompt
         isOpen={state.showConfirmModal}
+        color="brand"
         icon={ClipboardCheck}
         title="Send Response to Customer?"
         description={
@@ -120,7 +123,7 @@ function CurateResponseModal({
                   <span className="font-medium text-primary">{vendor.vendorName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-tertiary">Customer total</span>
+                  <span className="text-tertiary">Admin total</span>
                   <span className="font-semibold text-primary">{formatCurrency(state.customerPriceTotal)}</span>
                 </div>
               </div>

@@ -60,6 +60,7 @@ export interface RequestFilters {
   budgetRange: [number, number];
   countries: string[];
   statuses: RFQStatus[];
+  vendors: string[];
 }
 
 export type FilterTab = "all" | "accepted" | RFQStatus;

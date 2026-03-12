@@ -33,7 +33,7 @@ function RFQManagementTable({
 }) {
   return (
     <div className="overflow-x-auto">
-      <Table className="min-w-[900px]" aria-label="RFQ management table" sortDescriptor={sortDescriptor} onSortChange={onSortChange}>
+      <Table className="min-w-[900px] [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap" aria-label="RFQ management table" sortDescriptor={sortDescriptor} onSortChange={onSortChange}>
         <Table.Header columns={columns}>
           {(column) => <Table.Head id={column.id} label={column.name} allowsSorting={column.allowsSorting} isRowHeader={column.id === "id"} />}
         </Table.Header>

@@ -9,5 +9,6 @@ interface PersistedState {
   dir: SortDirection;
   page: number;
   filters: RequestFilters;
+  pageSize?: number;
 }
 export { PersistedState };

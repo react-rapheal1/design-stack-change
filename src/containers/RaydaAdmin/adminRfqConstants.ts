@@ -52,7 +52,7 @@ const deviceTemplates = [
   { name: "Logitech Rally Bar", assetType: "Conference", basePrice: 2999, specs: "4K, AI-Powered Framing, Bluetooth, USB" },
 ];
 
-const defaultFilters: RequestFilters = { countries: [], statuses: [], budgetRange: [0, 100000] };
+const defaultFilters: RequestFilters = { countries: [], statuses: [], vendors: [], budgetRange: [0, 100000] };
 
 const filterTabs: { id: FilterTab; label: string }[] = [
   { id: "all", label: "All" },
@@ -61,6 +61,7 @@ const filterTabs: { id: FilterTab; label: string }[] = [
   { id: "accepted", label: "Accepted" },
   { id: "customer_rejected", label: "Rejected" },
   { id: "pending_vendors", label: "Pending Vendors" },
+  { id: "expired", label: "Expired" },
 ];
 
 const navItems = [

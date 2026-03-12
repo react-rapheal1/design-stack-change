@@ -84,7 +84,7 @@ function buildVendorResponses(devices: RFQDevice[], index: number, createdDate: 
 }
 
 function applyOutcomeData(rfq: RFQ, random: () => number) {
-  if (!["response_sent", "fully_accepted", "partially_accepted", "customer_rejected"].includes(rfq.status) || rfq.vendorResponses.length === 0) {
+  if (!["response_sent", "fully_accepted", "partially_accepted", "customer_rejected", "expired"].includes(rfq.status) || rfq.vendorResponses.length === 0) {
     return rfq;
   }
 

@@ -58,10 +58,13 @@ function useCurateResponse({ rfq, vendorId }: { rfq: RFQ | null; vendorId: strin
     rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + getVendorPrice(index) * device.quantity), 0) ?? 0;
   const customerPriceTotal =
     rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + getCustomerPrice(index) * device.quantity), 0) ?? 0;
+  const customerBudgetTotal =
+    rfq?.devices.reduce((sum, device, index) => (devicePricing[index]?.isUnavailable ? sum : sum + (device.unitBudget ?? 0) * device.quantity), 0) ?? 0;
   const totalMarkup = customerPriceTotal - vendorCostTotal;
 
   return {
     curation: { devicePricing, notes, selectedVendorId: vendorId } as CurationData,
+    customerBudgetTotal,
     customerPriceTotal,
     devicePricing,
     getCustomerPrice,

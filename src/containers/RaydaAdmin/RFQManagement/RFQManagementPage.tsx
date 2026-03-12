@@ -26,6 +26,7 @@ export default function RFQManagementPage() {
           filterButtonRef={data.filterButtonRef}
           filteredCount={data.filteredRfqs.length}
           filters={data.filters}
+          itemsPerPage={data.itemsPerPage}
           mounted={data.mounted}
           onApplyFilters={data.setFilters}
           onFilterChange={(key) => {
@@ -33,6 +34,7 @@ export default function RFQManagementPage() {
             data.setCurrentPage(1);
           }}
           onPageChange={data.setCurrentPage}
+          onPageSizeChange={data.handlePageSizeChange}
           onSearchChange={data.setSearchQuery}
           onSortChange={data.handleColumnSort}
           paginatedRfqs={data.paginatedRfqs}
