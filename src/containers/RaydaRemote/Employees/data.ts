@@ -1,10 +1,9 @@
 const PANEL_TABS = [
   { key: "import" as const, label: "Import employees" },
-  { key: "invite" as const, label: "Invite employee" },
   { key: "add" as const, label: "Add employee" },
   { key: "hris" as const, label: "HRIS integration" },
 ];
-type PanelTab = "import" | "invite" | "add" | "hris";
+type PanelTab = "import" | "add" | "hris";
 type HrisView = "list" | "syncing" | "connected";
 const HRIS_PROVIDERS_LIST = [
   { key: "bamboo", name: "BambooHR", color: "#00a651", letter: "B" },

@@ -14,9 +14,10 @@ import type { Employee, HrisView } from "./data";
 
 function EmployeesPage() {
   const searchParams = useSearchParams();
-  const isTourActive = searchParams.get("tour") === "hris";
+  const tourParam = searchParams.get("tour");
+  const isTourActive = tourParam === "hris";
   const [tooltipStep, setTooltipStep] = useState<number | null>(isTourActive ? 0 : null);
-  const [showHrisModal, setShowHrisModal] = useState(false);
+  const [showHrisModal, setShowHrisModal] = useState(tourParam === "csv" || tourParam === "manual");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [showResolvePanel, setShowResolvePanel] = useState(false);
   const [resolveTooltipStep, setResolveTooltipStep] = useState<number | null>(null);
@@ -71,6 +72,7 @@ function EmployeesPage() {
       </div>
       {showHrisModal && (
         <HrisPanel
+          initialTab={tourParam === "csv" ? "import" : tourParam === "manual" ? "add" : undefined}
           onClose={() => setShowHrisModal(false)}
           onViewChange={handlePanelViewChange}
           onSave={() => {
