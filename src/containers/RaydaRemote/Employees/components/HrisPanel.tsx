@@ -18,10 +18,11 @@ interface HrisPanelProps {
   onSave?: () => void;
   onViewChange?: (view: HrisView) => void;
   initialTab?: PanelTab;
+  disabledTabs?: PanelTab[];
 }
 
-function HrisPanel({ onClose, onSave, onViewChange, initialTab }: HrisPanelProps) {
-  const [activeTab, setActiveTab] = useState<PanelTab>(initialTab ?? "import");
+function HrisPanel({ onClose, onSave, onViewChange, initialTab, disabledTabs = [] }: HrisPanelProps) {
+  const [activeTab, setActiveTab] = useState<PanelTab>(initialTab ?? "hris");
   const [view, setView] = useState<HrisView>("list");
   const [search, setSearch] = useState("");
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -40,11 +41,10 @@ function HrisPanel({ onClose, onSave, onViewChange, initialTab }: HrisPanelProps
   }
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} />
-      <div className="fixed top-0 right-0 z-50 flex h-full w-[780px] flex-col bg-white shadow-2xl">
+    <div className="fixed inset-0 z-[200] bg-black/20" onClick={onClose}>
+      <div className="absolute top-0 right-0 flex h-full w-[60%] flex-col bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <HrisPanelHeader onClose={onClose} />
-        <HrisPanelTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <HrisPanelTabs activeTab={activeTab} onTabChange={setActiveTab} disabledTabs={disabledTabs} />
         {activeTab === "import" && <ImportEmployeesTab onSuccess={onClose} />}
         {activeTab === "add" && <AddEmployeeTab onSuccess={onClose} />}
         {activeTab === "hris" && (
@@ -74,7 +74,7 @@ function HrisPanel({ onClose, onSave, onViewChange, initialTab }: HrisPanelProps
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 const PANEL_TABS = [
+  { key: "hris" as const, label: "HRIS integration" },
   { key: "import" as const, label: "Import employees" },
   { key: "add" as const, label: "Add employee" },
-  { key: "hris" as const, label: "HRIS integration" },
 ];
 type PanelTab = "import" | "add" | "hris";
 type HrisView = "list" | "syncing" | "connected";
@@ -26,7 +26,7 @@ const DUMMY_EMPLOYEES = [
     email: "olivia@rayda.co",
     address: "1 Apple Park Way",
     country: "United States",
-    flag: null,
+    flag: "No device assigned",
   },
   {
     id: "2",
@@ -48,7 +48,7 @@ const DUMMY_EMPLOYEES = [
     email: "lana@rayda.co",
     address: "789 Pine Rd",
     country: "Germany",
-    flag: null,
+    flag: "No device assigned",
   },
   {
     id: "4",
@@ -59,7 +59,7 @@ const DUMMY_EMPLOYEES = [
     email: "demi@rayda.co",
     address: "321 Elm St",
     country: "Canada",
-    flag: "Device overdue",
+    flag: "No device assigned",
   },
   {
     id: "5",
@@ -70,7 +70,7 @@ const DUMMY_EMPLOYEES = [
     email: "cand@rayda.co",
     address: "654 Maple Ave",
     country: "Australia",
-    flag: "Pending approval",
+    flag: "No device assigned",
   },
 ];
 type Employee = (typeof DUMMY_EMPLOYEES)[0];

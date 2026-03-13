@@ -1,4 +1,3 @@
-import { Input } from "@/components/base/input/input";
 import { QuestionBlock } from "./components/QuestionBlock";
 import { ALL_QUESTION_STEPS } from "./questionSteps";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
@@ -18,10 +17,8 @@ function QuestionsPage({
   const meta = STEP_META[stepIndex];
   const questions = ALL_QUESTION_STEPS[stepIndex];
 
-  const businessNameMissing = stepIndex === 0 && showErrors && !(answers["businessName"] as string)?.trim();
-
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-10">
       <div>
         <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">
           Step {stepIndex + 1} of {TOTAL_STEPS} · {meta.label}
@@ -30,25 +27,13 @@ function QuestionsPage({
         <p className="mt-1 text-sm text-tertiary">{meta.sub}</p>
       </div>
 
-      {stepIndex === 0 && (
-        <Input
-          size="md"
-          label="Business name"
-          placeholder="Acme Inc."
-          value={(answers["businessName"] as string) ?? ""}
-          isInvalid={businessNameMissing}
-          hint={businessNameMissing ? "Please enter your business name" : undefined}
-          onChange={(value) => onAnswer("businessName", value)}
-        />
-      )}
 
-      <div className="flex flex-col">
+<div className="flex flex-col gap-10">
         {questions.map((question, index) => {
           const answer = answers[question.key] ?? (question.multiSelect ? [] : "");
           const hasAnswer = Array.isArray(answer) ? answer.length > 0 : answer !== "";
           return (
             <div key={question.key}>
-              {index > 0 && <div className="my-6 h-px bg-[#f2f4f7]" />}
               <QuestionBlock
                 index={index}
                 question={question.question}

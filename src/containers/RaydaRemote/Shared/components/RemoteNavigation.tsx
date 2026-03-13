@@ -1,40 +1,58 @@
-import { Bell01, SearchMd, Settings01 } from "@untitledui/icons";
+import { Bell02, Settings01 } from "@untitledui/icons";
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
 import { cx } from "@/utils/cx";
 import { remoteNavItems } from "../navItems";
 
 export function RemoteNavigation({ activeKey }: { activeKey: string }) {
   return (
-    <nav className="flex h-14 shrink-0 items-center gap-1 border-b border-[#1d2939] bg-[#101828] px-4 lg:px-6">
-      <div className="mr-6 shrink-0">
-        <RaydaLogo variant="white" />
-      </div>
-      <div className="flex flex-1 items-center gap-0.5 overflow-x-auto">
-        {remoteNavItems.map((item) => (
-          <a
-            key={item.key}
-            id={item.id}
-            href={item.href}
-            className={cx(
-              "rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition duration-100",
-              item.key === activeKey ? "bg-white/10 text-white" : "text-[#98a2b3] hover:bg-white/5 hover:text-white",
-            )}
-          >
-            {item.label}
+    <header className="sticky top-0 z-40 w-full border-b border-[#22262f] bg-[#0c0e12]">
+      <div className="flex h-[72px] w-full items-center justify-between page-px">
+        <div className="flex items-center gap-6">
+          <a href="/" aria-label="Go to homepage">
+            <RaydaLogo variant="white" />
           </a>
-        ))}
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {[SearchMd, Settings01, Bell01].map((Icon) => (
+          <nav>
+            <ul className="flex items-center gap-0.5">
+              {remoteNavItems.map((item) => (
+                <li key={item.key}>
+                  <a
+                    id={item.id}
+                    href={item.href}
+                    className={cx(
+                      "rounded-md px-3 py-2 text-sm font-semibold transition duration-100 ease-linear",
+                      item.key === activeKey
+                        ? "bg-[#22262f] text-[#ececed]"
+                        : "text-[#cecfd2] hover:bg-white/5",
+                    )}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+        <div className="flex items-center gap-1">
           <button
-            key={Icon.name}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#98a2b3] transition duration-100 hover:bg-white/5 hover:text-white"
+            type="button"
+            className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5"
           >
-            <Icon className="size-4" />
+            <Bell02 className="size-5" />
           </button>
-        ))}
-        <div className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">OR</div>
+          <button
+            type="button"
+            className="flex size-10 items-center justify-center rounded-md text-[#94979c] hover:bg-white/5"
+          >
+            <Settings01 className="size-5" />
+          </button>
+          <div className="relative ml-1 size-10 shrink-0 cursor-pointer rounded-full bg-[#22262f]">
+            <span className="absolute inset-0 rounded-full border border-white/[0.12]" />
+            <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-[#94979c]">
+              OR
+            </p>
+          </div>
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }
