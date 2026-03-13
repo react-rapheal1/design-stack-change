@@ -4,7 +4,7 @@ import { modalQuestions } from "../constants";
 export function ProgressBar({ step }: { step: number }) {
   return (
     <div className="flex gap-1 px-6 pt-4">
-      {Array.from({ length: modalQuestions.length + 1 }).map((_, index) => (
+      {Array.from({ length: modalQuestions.length + 2 }).map((_, index) => (
         <div
           key={index}
           className={cx(

@@ -7,8 +7,7 @@ import { Button } from "@/components/base/buttons/button";
 import { GuidedTooltip } from "@/components/guided-tooltip";
 import { cx } from "@/utils/cx";
 import { RemoteNavigation } from "../Shared/components/RemoteNavigation";
-import { AddDeviceModal } from "./components/AddDeviceModal";
-import { CsvUploadModal } from "./components/CsvUploadModal";
+import { AddEquipmentPanel } from "./components/AddEquipmentPanel";
 import { EquipmentTable } from "./components/EquipmentTable";
 import { SelfReportModal } from "./components/SelfReportModal";
 import { TourContextBanner } from "./components/TourContextBanner";
@@ -17,19 +16,21 @@ import { tourSteps } from "./tourSteps";
 export default function EquipmentPage() {
   const searchParams = useSearchParams();
   const tour = searchParams.get("tour") ?? "";
+  const open = searchParams.get("open") ?? "";
   const steps = tourSteps[tour] ?? [];
   const [tooltipStep, setTooltipStep] = useState<number | null>(steps.length > 0 ? 0 : null);
-  const [showCsvModal, setShowCsvModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showSelfReportModal, setShowSelfReportModal] = useState(false);
+  const [panelTab, setPanelTab] = useState<"import" | "add" | null>(
+    open === "csv" ? "import" : open === "manual" ? "add" : null,
+  );
+  const [showSelfReportModal, setShowSelfReportModal] = useState(open === "self-report");
   const currentTooltip = tooltipStep !== null ? steps[tooltipStep] : null;
   const isActionStep = currentTooltip?.actionStep === 1;
 
   function handleTooltipNext() {
     if (tooltipStep === null) return;
     if (steps[tooltipStep]?.actionStep === 1) {
-      if (tour === "csv") setShowCsvModal(true);
-      if (tour === "manual") setShowAddModal(true);
+      if (tour === "csv") setPanelTab("import");
+      if (tour === "manual") setPanelTab("add");
       if (tour === "self-report") setShowSelfReportModal(true);
     }
     setTooltipStep(tooltipStep >= steps.length - 1 ? null : tooltipStep + 1);
@@ -42,23 +43,22 @@ export default function EquipmentPage() {
         <div className="py-6 page-px lg:py-8">
           <HeaderActions
             isActionStep={isActionStep}
-            onOpenAdd={() => setShowAddModal(true)}
-            onOpenCsv={() => setShowCsvModal(true)}
+            onOpenAdd={() => setPanelTab("add")}
+            onOpenCsv={() => setPanelTab("import")}
             onOpenSelfReport={() => setShowSelfReportModal(true)}
             tour={tour}
           />
           <TourContextBanner steps={steps} tooltipStep={tooltipStep} tour={tour} />
           <EquipmentTable
             isActionStep={isActionStep}
-            onOpenAdd={() => setShowAddModal(true)}
-            onOpenCsv={() => setShowCsvModal(true)}
+            onOpenAdd={() => setPanelTab("add")}
+            onOpenCsv={() => setPanelTab("import")}
             onOpenSelfReport={() => setShowSelfReportModal(true)}
             tour={tour}
           />
         </div>
       </div>
-      {showCsvModal && <CsvUploadModal onClose={() => setShowCsvModal(false)} />}
-      {showAddModal && <AddDeviceModal onClose={() => setShowAddModal(false)} />}
+      {panelTab && <AddEquipmentPanel initialTab={panelTab} onClose={() => setPanelTab(null)} />}
       {showSelfReportModal && <SelfReportModal onClose={() => setShowSelfReportModal(false)} />}
       {currentTooltip && tooltipStep !== null && (
         <GuidedTooltip

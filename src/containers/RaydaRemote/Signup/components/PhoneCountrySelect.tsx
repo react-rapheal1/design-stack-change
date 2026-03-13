@@ -23,12 +23,7 @@ export function PhoneCountrySelect({ country, phone, onCountryChange, onPhoneCha
       <div className="flex items-center overflow-hidden rounded-lg border border-primary bg-primary shadow-xs transition-shadow duration-100 ease-linear focus-within:ring-2 focus-within:ring-brand">
         <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
           <AriaButton
-            className={({ isFocused }) =>
-              cx(
-                "flex h-full shrink-0 items-center gap-1.5 border-r border-primary px-3 py-2.5 transition duration-100 ease-linear",
-                isFocused && "ring-2 ring-brand outline-none ring-inset",
-              )
-            }
+            className="flex h-full shrink-0 items-center gap-1.5 border-r border-primary px-3 py-2.5 outline-none"
           >
             <span className="text-sm font-medium text-secondary">{country.toUpperCase()}</span>
             <ChevronDown className="size-4 text-fg-quaternary" />
@@ -61,7 +56,7 @@ export function PhoneCountrySelect({ country, phone, onCountryChange, onPhoneCha
           type="tel"
           className="w-full bg-transparent py-2.5 pr-3.5 pl-1.5 text-md text-primary outline-none placeholder:text-placeholder"
           value={phone}
-          onChange={(event) => onPhoneChange(event.target.value)}
+          onChange={(event) => onPhoneChange(event.target.value.replace(/\D/g, ""))}
           placeholder="(555) 000-0000"
         />
       </div>

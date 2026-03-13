@@ -1,19 +1,37 @@
 import { Check } from "@untitledui/icons";
+import { Input } from "@/components/base/input/input";
 import { cx } from "@/utils/cx";
-import { importOptions, modalQuestions } from "../constants";
+import { employeeImportOptions, modalQuestions } from "../constants";
+import { EmployeeOptionCard } from "./EmployeeOptionCard";
 
 interface ModalBodyProps {
+  businessName: string;
   currentAnswer: string;
   currentQuestion: (typeof modalQuestions)[number] | null;
   importMethod: string;
+  isBusinessNameStep: boolean;
   isImportStep: boolean;
+  onBusinessNameChange: (value: string) => void;
   onAnswerChange: (value: string) => void;
   onImportMethodChange: (value: string) => void;
 }
 
-export function ModalBody({ currentAnswer, currentQuestion, importMethod, isImportStep, onAnswerChange, onImportMethodChange }: ModalBodyProps) {
+export function ModalBody({
+  businessName,
+  currentAnswer,
+  currentQuestion,
+  importMethod,
+  isBusinessNameStep,
+  isImportStep,
+  onBusinessNameChange,
+  onAnswerChange,
+  onImportMethodChange,
+}: ModalBodyProps) {
   return (
     <div className="px-6 py-5">
+      {isBusinessNameStep && (
+        <Input size="md" label="Business name" placeholder="Acme Inc." value={businessName} onChange={onBusinessNameChange} />
+      )}
       {currentQuestion && (
         <div className="flex flex-wrap gap-2">
           {currentQuestion.options.map((option) => (
@@ -35,33 +53,18 @@ export function ModalBody({ currentAnswer, currentQuestion, importMethod, isImpo
         </div>
       )}
       {isImportStep && (
-        <div className="flex flex-col gap-2">
-          {importOptions.map(({ description, icon: Icon, key, recommended, title }) => {
-            const isSelected = importMethod === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => onImportMethodChange(key)}
-                className={cx(
-                  "flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-3 text-left transition duration-100",
-                  isSelected ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-[#eaecf0] bg-white hover:border-brand-300 hover:bg-brand-25",
-                )}
-              >
-                <div className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", isSelected ? "bg-brand-100" : "bg-[#f2f4f7]")}>
-                  <Icon className={cx("size-[18px]", isSelected ? "text-brand-600" : "text-[#667085]")} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className={cx("text-sm font-semibold", isSelected ? "text-brand-700" : "text-secondary")}>{title}</span>
-                    {recommended && <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700">Recommended</span>}
-                  </div>
-                  <p className="mt-0.5 text-xs text-tertiary">{description}</p>
-                </div>
-                {isSelected && <Check className="size-4 shrink-0 text-brand-600" />}
-              </button>
-            );
-          })}
+        <div className="flex flex-col gap-3">
+          {employeeImportOptions.map(({ description, icon, key, recommended, title }) => (
+            <EmployeeOptionCard
+              key={key}
+              icon={icon}
+              title={title}
+              description={description}
+              recommended={recommended}
+              isSelected={importMethod === key}
+              onClick={() => onImportMethodChange(key)}
+            />
+          ))}
         </div>
       )}
     </div>
