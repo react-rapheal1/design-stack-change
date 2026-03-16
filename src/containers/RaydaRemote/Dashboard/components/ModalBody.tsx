@@ -1,17 +1,13 @@
 import { Check } from "@untitledui/icons";
-import { Input } from "@/components/base/input/input";
 import { cx } from "@/utils/cx";
 import { employeeImportOptions, modalQuestions } from "../constants";
 import { EmployeeOptionCard } from "./EmployeeOptionCard";
 
 interface ModalBodyProps {
-  businessName: string;
   currentAnswer: string;
   currentQuestion: (typeof modalQuestions)[number] | null;
   importMethod: string;
-  isBusinessNameStep: boolean;
   isImportStep: boolean;
-  onBusinessNameChange: (value: string) => void;
   onAnswerChange: (value: string) => void;
   onImportMethodChange: (value: string) => void;
 }
@@ -26,9 +22,6 @@ export function ModalBody({
 }: ModalBodyProps) {
   return (
     <div className="px-6 py-5">
-      {isBusinessNameStep && (
-        <Input size="md" label="Business name" placeholder="Acme Inc." value={businessName} onChange={onBusinessNameChange} />
-      )}
       {currentQuestion && (
         <div className="flex flex-wrap gap-2">
           {currentQuestion.options.map((option) => (
