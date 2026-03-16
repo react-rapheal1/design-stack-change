@@ -10,7 +10,7 @@ const STEP_CONTENT: StepContent[] = [
   {
     badge: "Getting started",
     heading: "Tell us about\nyour company",
-    sub: "We'll use this to personalise your workspace and match you with the right vendors.",
+    sub: "We'll use this to personalise your workspace and streamline your experience on the platform.",
     highlights: [
       { icon: BarChart01, text: "Full asset visibility from day one" },
       { icon: Users01, text: "Automated new hire provisioning" },
@@ -39,6 +39,16 @@ const STEP_CONTENT: StepContent[] = [
       { icon: Laptop01, text: "Smart procurement for your device stack" },
       { icon: CurrencyDollar, text: "Depreciation tracking built-in" },
       { icon: ZapFast, text: "AI flags compliance gaps automatically" },
+    ],
+  },
+  {
+    badge: "Company details",
+    heading: "Tell us about\nyour business",
+    sub: "This helps us personalize your workspace.",
+    highlights: [
+      { icon: Settings01, text: "Personalized workspace configuration" },
+      { icon: Users01, text: "Tailored vendor recommendations" },
+      { icon: ZapFast, text: "Faster onboarding for your team" },
     ],
   },
   {
@@ -71,17 +81,10 @@ function OnboardingSidePanel({ step }: { step: number }) {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-900/50 px-3 py-1 text-xs font-semibold text-brand-300 ring-1 ring-brand-700/50">
             {content.badge}
           </span>
-          <h2 className="mt-4 text-2xl leading-8 font-bold text-white">
-            Let&apos;s set up your
-            <br />
-            IT workspace.
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-[#98a2b3]">
-            A few quick questions and we&apos;ll have your platform configured, your devices tracked, and your first goal underway — in under 3
-            minutes.
-          </p>
+          <h2 className="mt-4 whitespace-pre-line text-2xl leading-8 font-bold text-white">{content.heading}</h2>
+          <p className="mt-3 text-sm leading-6 text-[#98a2b3]">{content.sub}</p>
 
-          <OnboardingHighlights />
+          <OnboardingHighlights highlights={content.highlights} />
         </div>
 
         <div className="mt-8 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
