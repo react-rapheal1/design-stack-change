@@ -10,7 +10,7 @@ const STEP_CONTENT: StepContent[] = [
   {
     badge: "Getting started",
     heading: "Tell us about\nyour company",
-    sub: "We'll use this to personalise your workspace and match you with the right vendors.",
+    sub: "We'll use this to personalise your workspace and streamline your experience on the platform.",
     highlights: [
       { icon: BarChart01, text: "Full asset visibility from day one" },
       { icon: Users01, text: "Automated new hire provisioning" },
@@ -39,6 +39,16 @@ const STEP_CONTENT: StepContent[] = [
       { icon: Laptop01, text: "Smart procurement for your device stack" },
       { icon: CurrencyDollar, text: "Depreciation tracking built-in" },
       { icon: ZapFast, text: "AI flags compliance gaps automatically" },
+    ],
+  },
+  {
+    badge: "Company details",
+    heading: "Tell us about\nyour business",
+    sub: "This helps us personalize your workspace.",
+    highlights: [
+      { icon: Settings01, text: "Personalized workspace configuration" },
+      { icon: Users01, text: "Tailored vendor recommendations" },
+      { icon: ZapFast, text: "Faster onboarding for your team" },
     ],
   },
   {

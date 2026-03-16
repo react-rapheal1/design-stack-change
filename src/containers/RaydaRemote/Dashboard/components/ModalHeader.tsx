@@ -4,26 +4,13 @@ import { modalQuestions } from "../constants";
 interface ModalHeaderProps {
   currentQuestion?: string;
   hint?: string;
-  isBusinessNameStep: boolean;
   onSkip: () => void;
   step: number;
 }
 
-export function ModalHeader({ currentQuestion, hint, isBusinessNameStep, onSkip, step }: ModalHeaderProps) {
-  const totalSteps = modalQuestions.length + 2;
-  const isImportStep = step === modalQuestions.length + 1;
-
-  function getHeading() {
-    if (isBusinessNameStep) return "What's your business name?";
-    if (isImportStep) return "Add your employees to get started";
-    return currentQuestion;
-  }
-
-  function getHint() {
-    if (isBusinessNameStep) return "This helps us personalize your workspace.";
-    if (isImportStep) return "Choose how you'd like to bring your team into Rayda.";
-    return hint;
-  }
+export function ModalHeader({ currentQuestion, hint, onSkip, step }: ModalHeaderProps) {
+  const totalSteps = modalQuestions.length + 1;
+  const isImportStep = step === modalQuestions.length;
 
   return (
     <div className="flex items-start justify-between border-b border-[#eaecf0] px-6 py-5">
