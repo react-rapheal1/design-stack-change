@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "@untitledui/icons";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
+import { CompanyDetailsPage } from "./CompanyDetailsPage";
 import { GoalSelectionPage } from "./GoalSelectionPage";
 import { QuestionsPage } from "./QuestionsPage";
 import { OnboardingSidePanel } from "./components/OnboardingSidePanel";
@@ -73,16 +74,41 @@ export default function OnboardingPage() {
                 }}
               />
             )}
-            {step === 3 && <GoalSelectionPage selected={selectedGoal} onSelect={setSelectedGoal} />}
+            {step === 3 && (
+              <CompanyDetailsPage
+                answers={answers}
+                showErrors={showErrors}
+                onAnswer={(key, value) => {
+                  setAnswers((current) => ({ ...current, [key]: value }));
+                  setShowErrors(false);
+                }}
+              />
+            )}
+            {step === 3 && (
+              <CompanyDetailsPage
+                answers={answers}
+                showErrors={showErrors}
+                onAnswer={(key, value) => {
+                  setAnswers((current) => ({ ...current, [key]: value }));
+                  setShowErrors(false);
+                }}
+              />
+            )}
+            {step === 4 && <GoalSelectionPage selected={selectedGoal} onSelect={setSelectedGoal} />}
           </div>
 
-          <div className="mt-4 flex shrink-0 items-center justify-between border-t border-[#eaecf0] pt-4">
-            <Button color="tertiary" size="md" iconLeading={ArrowLeft} onClick={handleBack}>
-              Back
-            </Button>
-            <Button size="md" iconTrailing={ArrowRight} onClick={handleNext} isDisabled={!canContinue}>
-              {step === 3 ? "Start mission" : "Continue"}
-            </Button>
+          <div className="mt-4 flex shrink-0 flex-col gap-2 border-t border-[#eaecf0] pt-4">
+            {showErrors && !canContinue && (
+              <p className="text-center text-xs text-error-primary">Please answer all questions to continue.</p>
+            )}
+            <div className="flex items-center justify-between">
+              <Button color="tertiary" size="md" iconLeading={ArrowLeft} onClick={handleBack}>
+                Back
+              </Button>
+              <Button size="md" iconTrailing={ArrowRight} onClick={handleNext}>
+                {step === 4 ? "Start mission" : "Continue"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

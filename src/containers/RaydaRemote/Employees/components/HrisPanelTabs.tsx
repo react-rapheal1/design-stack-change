@@ -1,23 +1,18 @@
-import { cx } from "@/utils/cx";
+import { Tabs } from "@/components/application/tabs/tabs";
 import { PANEL_TABS } from "../data";
 import type { PanelTab } from "../data";
 
 function HrisPanelTabs({ activeTab, onTabChange }: { activeTab: PanelTab; onTabChange: (value: PanelTab) => void }) {
   return (
-    <div className="flex border-b border-[#eaecf0] px-2">
-      {PANEL_TABS.map((tab) => (
-        <button
-          key={tab.key}
-          onClick={() => onTabChange(tab.key)}
-          className={cx(
-            "-mb-px border-b-2 px-4 py-3 text-sm font-medium transition duration-100",
-            activeTab === tab.key ? "border-brand-600 text-brand-700" : "border-transparent text-tertiary hover:text-secondary",
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
+    <Tabs selectedKey={activeTab} onSelectionChange={(key) => onTabChange(key as PanelTab)} className="px-2">
+      <Tabs.List type="underline" size="sm" items={[]}>
+        {PANEL_TABS.map((tab) => (
+          <Tabs.Item key={tab.key} id={tab.key} isDisabled={disabledTabs.includes(tab.key)}>
+            {tab.label}
+          </Tabs.Item>
+        ))}
+      </Tabs.List>
+    </Tabs>
   );
 }
 

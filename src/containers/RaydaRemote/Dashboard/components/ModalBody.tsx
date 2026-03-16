@@ -11,7 +11,14 @@ interface ModalBodyProps {
   onImportMethodChange: (value: string) => void;
 }
 
-export function ModalBody({ currentAnswer, currentQuestion, importMethod, isImportStep, onAnswerChange, onImportMethodChange }: ModalBodyProps) {
+export function ModalBody({
+  currentAnswer,
+  currentQuestion,
+  importMethod,
+  isImportStep,
+  onAnswerChange,
+  onImportMethodChange,
+}: ModalBodyProps) {
   return (
     <div className="px-6 py-5">
       {currentQuestion && (

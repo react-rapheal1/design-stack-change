@@ -9,6 +9,12 @@ function isStageComplete(step: number, answers: Answers, selectedGoal: string) {
     });
   }
 
+  if (step === 3) {
+    const name = answers.businessName;
+    const address = answers.companyAddress;
+    return typeof name === "string" && name.trim() !== "" && typeof address === "string" && address.trim() !== "";
+  }
+
   return selectedGoal !== "";
 }
 

@@ -36,7 +36,12 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
       <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-          <ModalHeader currentQuestion={currentQuestion?.question} hint={currentQuestion?.hint} onSkip={onSkip} step={step} />
+          <ModalHeader
+            currentQuestion={currentQuestion?.question}
+            hint={currentQuestion?.hint}
+            onSkip={onSkip}
+            step={step}
+          />
           <ProgressBar step={step} />
           <ModalBody
             currentAnswer={currentAnswer}

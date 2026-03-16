@@ -1,4 +1,4 @@
-import { X } from "@untitledui/icons";
+import { CloseButton } from "@/components/base/buttons/close-button";
 import type { CsvUploadStage } from "../csvUploadTypes";
 
 const stageTitles = {
@@ -20,9 +20,7 @@ function CsvUploadHeader({ onClose, stage }: { onClose: () => void; stage: CsvUp
         <h2 className="text-base font-bold text-primary">{stageTitles[stage]}</h2>
         <p className="mt-0.5 text-sm text-tertiary">{stageDescriptions[stage]}</p>
       </div>
-      <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-tertiary transition duration-100 hover:bg-[#f2f4f7]">
-        <X className="size-4" />
-      </button>
+      <CloseButton size="sm" onPress={onClose} />
     </div>
   );
 }

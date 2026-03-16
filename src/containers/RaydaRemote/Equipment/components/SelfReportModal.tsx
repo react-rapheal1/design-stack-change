@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Mail01, X } from "@untitledui/icons";
+import { Check, Mail01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { CloseButton } from "@/components/base/buttons/close-button";
 
 export function SelfReportModal({ onClose }: { onClose: () => void }) {
   const [sent, setSent] = useState(false);
@@ -17,9 +18,7 @@ export function SelfReportModal({ onClose }: { onClose: () => void }) {
               <h2 className="text-base font-bold text-primary">Send self-report form</h2>
               <p className="mt-0.5 text-sm text-tertiary">Employees fill out a simple form listing their equipment.</p>
             </div>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-tertiary transition duration-100 hover:bg-[#f2f4f7]">
-              <X className="size-4" />
-            </button>
+            <CloseButton size="sm" onPress={onClose} />
           </div>
           {sent ? <SuccessState onClose={onClose} /> : <FormState emails={emails} onChange={setEmails} onClose={onClose} onSend={() => setSent(true)} />}
         </div>

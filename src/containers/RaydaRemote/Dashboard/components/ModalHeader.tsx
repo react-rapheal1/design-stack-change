@@ -12,6 +12,16 @@ export function ModalHeader({ currentQuestion, hint, onSkip, step }: ModalHeader
   const totalSteps = modalQuestions.length + 1;
   const isImportStep = step === modalQuestions.length;
 
+  function getHeading() {
+    if (isImportStep) return "Add your employees to get started";
+    return currentQuestion;
+  }
+
+  function getHint() {
+    if (isImportStep) return "Choose how you'd like to bring your team into Rayda.";
+    return hint;
+  }
+
   return (
     <div className="flex items-start justify-between border-b border-[#eaecf0] px-6 py-5">
       <div>
