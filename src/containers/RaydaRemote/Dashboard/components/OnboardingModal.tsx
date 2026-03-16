@@ -39,7 +39,6 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
           <ModalHeader
             currentQuestion={currentQuestion?.question}
             hint={currentQuestion?.hint}
-            isBusinessNameStep={isBusinessNameStep}
             onSkip={onSkip}
             step={step}
           />

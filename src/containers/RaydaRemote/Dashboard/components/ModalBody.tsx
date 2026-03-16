@@ -13,13 +13,10 @@ interface ModalBodyProps {
 }
 
 export function ModalBody({
-  businessName,
   currentAnswer,
   currentQuestion,
   importMethod,
-  isBusinessNameStep,
   isImportStep,
-  onBusinessNameChange,
   onAnswerChange,
   onImportMethodChange,
 }: ModalBodyProps) {

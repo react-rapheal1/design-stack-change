@@ -12,14 +12,17 @@ export function ModalHeader({ currentQuestion, hint, onSkip, step }: ModalHeader
   const totalSteps = modalQuestions.length + 1;
   const isImportStep = step === modalQuestions.length;
 
+  const heading = isImportStep ? "Add your employees to get started" : currentQuestion;
+  const subtext = isImportStep ? "Choose how you'd like to bring your team into Rayda." : hint;
+
   return (
     <div className="flex items-start justify-between border-b border-[#eaecf0] px-6 py-5">
       <div>
         <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">
           Step {step + 1} of {totalSteps}
         </p>
-        <h2 className="mt-1 text-lg font-bold text-primary">{getHeading()}</h2>
-        <p className="mt-1 text-sm text-tertiary">{getHint()}</p>
+        <h2 className="mt-1 text-lg font-bold text-primary">{heading}</h2>
+        <p className="mt-1 text-sm text-tertiary">{subtext}</p>
       </div>
       <button
         onClick={onSkip}
