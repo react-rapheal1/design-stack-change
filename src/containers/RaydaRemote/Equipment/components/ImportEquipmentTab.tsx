@@ -4,6 +4,8 @@ import { useState } from "react";
 import { RefreshCw03, Upload01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { FileTrigger } from "@/components/base/file-upload-trigger/file-upload-trigger";
+import { Badge } from "@/components/base/badges/badges";
+import { Avatar } from "@/components/base/avatar/avatar";
 import { cx } from "@/utils/cx";
 
 const PREVIEW_ROWS = [
@@ -45,7 +47,7 @@ export function ImportEquipmentTab({ onClose }: { onClose: () => void }) {
                   <tr key={row.serial} className={cx("border-b border-[#eaecf0] last:border-0", !row.assignee && "bg-orange-50/60")}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7]" />
+                        <Avatar size="md" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-[#101828]">{row.name}</p>
                           <p className="truncate text-sm text-[#475467]">{row.serial}</p>
@@ -63,7 +65,7 @@ export function ImportEquipmentTab({ onClose }: { onClose: () => void }) {
                     <td className="max-w-[140px] px-6 py-4">
                       {row.assignee
                         ? <p className="truncate text-sm text-[#101828]">{row.assignee}</p>
-                        : <span className="rounded-full border border-orange-200 bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">Unassigned</span>
+                        : <Badge size="sm" color="warning">Unassigned</Badge>
                       }
                     </td>
                     <td className="px-6 py-4">

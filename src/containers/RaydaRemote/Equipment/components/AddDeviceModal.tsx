@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X } from "@untitledui/icons";
+import { Check } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { CloseButton } from "@/components/base/buttons/close-button";
 
 const deviceFields = [
   { label: "Device name", placeholder: 'e.g. MacBook Pro 14"' },
@@ -23,9 +24,7 @@ export function AddDeviceModal({ onClose }: { onClose: () => void }) {
               <h2 className="text-base font-bold text-primary">Add device</h2>
               <p className="mt-0.5 text-sm text-tertiary">Enter the details of the device you want to add.</p>
             </div>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-tertiary transition duration-100 hover:bg-[#f2f4f7]">
-              <X className="size-4" />
-            </button>
+            <CloseButton size="sm" onPress={onClose} />
           </div>
           {saved ? <SuccessState onClose={onClose} /> : <FormState onClose={onClose} onSave={() => setSaved(true)} />}
         </div>

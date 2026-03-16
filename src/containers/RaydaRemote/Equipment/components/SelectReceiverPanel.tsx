@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { CloseButton } from "@/components/base/buttons/close-button";
+import { Avatar } from "@/components/base/avatar/avatar";
 import { EMPLOYEES_LIST } from "../data";
 import type { EquipmentRow } from "../data";
 
@@ -35,19 +36,13 @@ export function SelectReceiverPanel({
               Please select employee to Reassign equipment to
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-tertiary hover:bg-[#f2f4f7]"
-          >
-            <X className="size-4" />
-          </button>
+          <CloseButton size="sm" onPress={onClose} />
         </div>
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-2">
           {rows.map((row) => (
             <div key={row.id} className="flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <div className="size-10 shrink-0 rounded-lg bg-[#f2f4f7]" />
+                <Avatar size="md" />
                 <p className="text-sm font-medium text-[#101828]">{row.name}</p>
               </div>
               <select

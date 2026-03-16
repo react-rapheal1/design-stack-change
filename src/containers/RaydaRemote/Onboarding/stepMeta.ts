@@ -1,4 +1,4 @@
-export const TOTAL_STEPS = 4;
+export const TOTAL_STEPS = 5;
 
 export const STEP_META = [
   {
@@ -15,6 +15,11 @@ export const STEP_META = [
     label: "Hardware & compliance",
     heading: "Hardware & compliance",
     sub: "Informs your AI Teammate's recommendations from day one.",
+  },
+  {
+    label: "Company details",
+    heading: "Tell us about your business",
+    sub: "This helps us personalize your workspace.",
   },
   {
     label: "Your first goal",

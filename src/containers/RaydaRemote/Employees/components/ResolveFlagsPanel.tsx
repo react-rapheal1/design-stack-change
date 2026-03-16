@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { Badge } from "@/components/base/badges/badges";
+import { Avatar } from "@/components/base/avatar/avatar";
+import { CloseButton } from "@/components/base/buttons/close-button";
 import { cx } from "@/utils/cx";
 import type { Employee } from "../data";
 import { EquipmentModal } from "./EquipmentModal";
@@ -30,13 +32,11 @@ function ResolveFlagsPanel({ employees, onClose, onResolveStep }: { employees: E
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-primary">Resolve flags</h2>
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">{flagged.length - resolved.size} remaining</span>
+              <Badge size="sm" color="error">{flagged.length - resolved.size} remaining</Badge>
             </div>
             <p className="mt-0.5 text-sm text-tertiary">Address device assignment issues for your employees</p>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-tertiary transition duration-100 hover:bg-[#f2f4f7]">
-            <X className="size-4" />
-          </button>
+          <CloseButton size="sm" onPress={onClose} />
         </div>
 
         {}
@@ -73,18 +73,12 @@ function ResolveFlagsPanel({ employees, onClose, onResolveStep }: { employees: E
                       isResolved ? "border-green-200 bg-green-50" : "border-[#eaecf0] bg-white",
                     )}
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7] text-xs font-semibold text-secondary">
-                      {emp.initials}
-                    </div>
+                    <Avatar size="sm" initials={emp.initials} />
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-primary">{emp.name}</p>
                       <p className="text-xs text-tertiary">{emp.dept}</p>
                     </div>
-                    <span
-                      className={cx("rounded-full px-2.5 py-1 text-xs font-medium", isResolved ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600")}
-                    >
-                      {isResolved ? "Resolved" : emp.flag}
-                    </span>
+                    <Badge size="sm" color={isResolved ? "success" : "error"}>{isResolved ? "Resolved" : emp.flag}</Badge>
                     {!isResolved && (
                       <Button size="sm" color="secondary" onClick={() => setResolvingId(emp.id)}>
                         Resolve

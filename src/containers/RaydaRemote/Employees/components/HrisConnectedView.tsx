@@ -1,4 +1,5 @@
 import { ChevronDown, X } from "@untitledui/icons";
+import { BadgeWithDot } from "@/components/base/badges/badges";
 import type { Provider } from "../data";
 
 function HrisConnectedView({
@@ -62,10 +63,7 @@ function ConnectedProviderCard({ provider }: { provider: Provider }) {
         <p className="text-sm font-medium text-primary">{accountUrl}</p>
         <p className="text-xs text-tertiary">Found in your {provider.name} account URL</p>
       </div>
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-        Connected
-      </span>
+      <BadgeWithDot size="sm" color="success">Connected</BadgeWithDot>
     </div>
   );
 }
