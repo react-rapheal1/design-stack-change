@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Package, Plus, SearchMd, Settings01, Upload01, UserPlus01, ZapFast } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { Badge } from "@/components/base/badges/badges";

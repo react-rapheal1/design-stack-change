@@ -19,26 +19,29 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [selectedGoal, setSelectedGoal] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
 
   const canContinue = isStageComplete(step, answers, selectedGoal);
 
   function handleBack() {
+    setShowErrors(false);
     if (step === 0) {
       router.push("/rayda-remote/signup");
       return;
     }
-
     setStep((current) => current - 1);
   }
 
   function handleNext() {
-    if (!canContinue) return;
-
+    if (!canContinue) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
     if (step < TOTAL_STEPS - 1) {
       setStep((current) => current + 1);
       return;
     }
-
     router.push("/rayda-remote/dashboard");
   }
 
@@ -84,22 +87,12 @@ export default function OnboardingPage() {
                 }}
               />
             )}
-            {step === 3 && (
-              <CompanyDetailsPage
-                answers={answers}
-                showErrors={showErrors}
-                onAnswer={(key, value) => {
-                  setAnswers((current) => ({ ...current, [key]: value }));
-                  setShowErrors(false);
-                }}
-              />
-            )}
             {step === 4 && <GoalSelectionPage selected={selectedGoal} onSelect={setSelectedGoal} />}
           </div>
 
           <div className="mt-4 flex shrink-0 flex-col gap-2 border-t border-[#eaecf0] pt-4">
             {showErrors && !canContinue && (
-              <p className="text-center text-xs text-error-primary">Please answer all questions to continue.</p>
+              <p className="text-center text-xs text-error-primary">Please fill in all fields to continue.</p>
             )}
             <div className="flex items-center justify-between">
               <Button color="tertiary" size="md" iconLeading={ArrowLeft} onClick={handleBack}>

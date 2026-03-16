@@ -7,7 +7,7 @@ function HrisPanelTabs({ activeTab, onTabChange }: { activeTab: PanelTab; onTabC
     <Tabs selectedKey={activeTab} onSelectionChange={(key) => onTabChange(key as PanelTab)} className="px-2">
       <Tabs.List type="underline" size="sm" items={[]}>
         {PANEL_TABS.map((tab) => (
-          <Tabs.Item key={tab.key} id={tab.key} isDisabled={disabledTabs.includes(tab.key)}>
+          <Tabs.Item key={tab.key} id={tab.key}>
             {tab.label}
           </Tabs.Item>
         ))}
