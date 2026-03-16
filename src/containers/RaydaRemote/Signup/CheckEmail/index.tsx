@@ -14,7 +14,7 @@ function CheckEmailContent() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#f9fafb] px-4">
-      <div className="absolute top-8 left-8">
+      <div className="absolute top-8 left-1/2 -translate-x-1/2">
         <RaydaLogo />
       </div>
       <div className="w-full max-w-[400px] rounded-2xl bg-white px-8 py-10 shadow-lg ring-1 ring-[#eaecf0]">

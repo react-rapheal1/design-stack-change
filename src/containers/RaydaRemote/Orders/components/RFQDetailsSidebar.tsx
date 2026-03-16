@@ -9,6 +9,7 @@ import { RequestRejectModal } from "./RequestRejectModal";
 import { RequestStatusBanner } from "./RequestStatusBanner";
 import { RequestedDevicesCard } from "./RequestedDevicesCard";
 import { StatusBadge } from "./StatusBadge";
+import { VendorNoteCard } from "./VendorNoteCard";
 
 function getAvailableSelection(request: CustomDeviceRequest) {
   return request.devices.reduce((selected, device, index) => {
@@ -72,6 +73,7 @@ function RFQDetailsSidebar({
               request={request}
               vendorTotal={vendorTotal}
             />
+            {request.status !== "pending" && request.vendorNote && <VendorNoteCard note={request.vendorNote} />}
             <RequestDetailsCard request={request} />
           </div>
         </SlideoutMenu.Content>

@@ -6,6 +6,7 @@ export interface ProjectCard {
   description: string;
   href: string;
   icon: FC<{ className?: string }>;
+  links: { label: string; href: string }[];
   name: string;
   status: string;
 }
@@ -17,6 +18,15 @@ export const projects: ProjectCard[] = [
     icon: ShoppingBag01,
     name: "Rayda Remote",
     status: "Customer workspace",
+    links: [
+      { label: "Dashboard", href: appRoutes.raydaRemote.dashboard },
+      { label: "Orders", href: appRoutes.raydaRemote.orders },
+      { label: "Equipment", href: appRoutes.raydaRemote.equipment },
+      { label: "Employees", href: appRoutes.raydaRemote.employees },
+      { label: "Marketplace", href: appRoutes.raydaRemote.marketplace },
+      { label: "Onboarding", href: appRoutes.raydaRemote.onboarding },
+      { label: "Sign Up", href: appRoutes.raydaRemote.signup },
+    ],
   },
   {
     description: "Vendor order intake, RFQ handling, and catalog management.",
@@ -24,6 +34,7 @@ export const projects: ProjectCard[] = [
     icon: BarChartSquare02,
     name: "Vendor Portal",
     status: "Supplier workspace",
+    links: [{ label: "Portal", href: appRoutes.vendorPortal.root }],
   },
   {
     description: "Internal administration for RFQ oversight and platform operations.",
@@ -31,6 +42,7 @@ export const projects: ProjectCard[] = [
     icon: Settings01,
     name: "Rayda Admin",
     status: "Operations workspace",
+    links: [{ label: "RFQ Management", href: appRoutes.raydaAdmin.rfqManagement }],
   },
   {
     description: "Employee self-service pages for device visibility and fulfillment tracking.",
@@ -38,5 +50,9 @@ export const projects: ProjectCard[] = [
     icon: CheckDone01,
     name: "Remote Employees",
     status: "Employee workspace",
+    links: [
+      { label: "Overview", href: appRoutes.remoteEmployees.overview },
+      { label: "Order Summary", href: appRoutes.remoteEmployees.orderSummary },
+    ],
   },
 ];

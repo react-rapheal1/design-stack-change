@@ -13,7 +13,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Rayda Workspace",
+  title: { default: "Rayda", template: "%s | Rayda" },
   description: "Unified workspace for all Rayda products",
 };
 

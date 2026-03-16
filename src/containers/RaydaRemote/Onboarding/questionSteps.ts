@@ -29,13 +29,13 @@ export const STEP_1_QUESTIONS = [
   {
     key: "devicePolicy",
     question: "What is your device policy?",
-    options: ["BYOD", "Company-issued", "Both"],
+    options: ["BYOD (Bring Your Own Device)", "Company-issued", "Both"],
     multiSelect: false,
   },
   {
     key: "mdm",
-    question: "Do you use an MDM?",
-    options: ["Yes — Jamf", "Yes — Intune", "Yes — Kandji", "Yes — Other", "No"],
+    question: "Do you use an MDM (Mobile Device Manager)?",
+    options: ["Yes — Jamf", "Yes — Intune", "Yes — Kandji", "Yes — Other", "No", "Not sure"],
     multiSelect: false,
   },
 ] as const;

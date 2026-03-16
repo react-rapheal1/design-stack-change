@@ -34,7 +34,7 @@ function CustomerRequestCard({ rfq }: { rfq: RFQ }) {
             <span className="text-sm font-medium text-primary">
               {rfq.budget > 0 ? (
                 <>
-                  {formatCurrency(rfq.budget)}
+                  {formatCurrency(rfq.budget, rfq.customerCurrency)}
                   {rfq.devices.some((device) => device.unitBudget == null) && <span className="text-tertiary"> (partial)</span>}
                 </>
               ) : (
@@ -63,7 +63,7 @@ function CustomerRequestCard({ rfq }: { rfq: RFQ }) {
                   {device.name} × {device.quantity}
                 </span>
                 <span className={cx("font-medium", device.unitBudget != null ? "text-primary" : "text-tertiary")}>
-                  {device.unitBudget != null ? formatCurrency(device.unitBudget * device.quantity) : "—"}
+                  {device.unitBudget != null ? formatCurrency(device.unitBudget * device.quantity, rfq.customerCurrency) : "—"}
                 </span>
               </div>
             ))}

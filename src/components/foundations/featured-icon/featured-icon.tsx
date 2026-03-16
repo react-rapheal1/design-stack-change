@@ -91,7 +91,7 @@ const styles = sortCx({
       xl: "size-14 rounded-[14px] before:rounded-[10px]",
     },
     colors: {
-      brand: "",
+      brand: "ring-secondary",
       gray: "text-fg-secondary ring-primary",
       error: "",
       warning: "",

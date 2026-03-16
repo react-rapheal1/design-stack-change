@@ -7,10 +7,14 @@ import { Avatar } from "@/components/base/avatar/avatar";
 import { CloseButton } from "@/components/base/buttons/close-button";
 import { cx } from "@/utils/cx";
 import type { Employee } from "../data";
+import { EquipmentModal } from "./EquipmentModal";
 
 function ResolveFlagsPanel({ employees, onClose, onResolveStep }: { employees: Employee[]; onClose: () => void; onResolveStep?: (step: number) => void }) {
   const flagged = employees.filter((e) => e.flag);
   const [resolved, setResolved] = useState<Set<string>>(new Set());
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const resolvingEmployee = flagged.find((e) => e.id === resolvingId) ?? null;
+
   function handleResolve(id: string) {
     const next = new Set(resolved).add(id);
     setResolved(next);
@@ -76,7 +80,7 @@ function ResolveFlagsPanel({ employees, onClose, onResolveStep }: { employees: E
                     </div>
                     <Badge size="sm" color={isResolved ? "success" : "error"}>{isResolved ? "Resolved" : emp.flag}</Badge>
                     {!isResolved && (
-                      <Button size="sm" color="secondary" onClick={() => handleResolve(emp.id)}>
+                      <Button size="sm" color="secondary" onClick={() => setResolvingId(emp.id)}>
                         Resolve
                       </Button>
                     )}
@@ -94,6 +98,16 @@ function ResolveFlagsPanel({ employees, onClose, onResolveStep }: { employees: E
           </Button>
         </div>
       </div>
+      {resolvingEmployee && (
+        <EquipmentModal
+          employeeName={resolvingEmployee.name}
+          onSkip={() => setResolvingId(null)}
+          onComplete={() => {
+            handleResolve(resolvingEmployee.id);
+            setResolvingId(null);
+          }}
+        />
+      )}
     </>
   );
 }

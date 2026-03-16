@@ -1,10 +1,13 @@
 import { CheckCircle, XCircle } from "@untitledui/icons";
 import { cx } from "@/utils/cx";
 import { RFQ, VendorResponse } from "../../shared";
+import { getAdminUnitPrice } from "../utils/curationPricing";
 import { VendorDeviceResponseCard } from "./VendorDeviceResponseCard";
 
-function VendorComparisonSection({ rfq, selectedVendorId, vendors }: { rfq: RFQ; selectedVendorId: string; vendors: VendorResponse[] }) {
+function VendorComparisonSection({ exchangeRate, rfq, selectedVendorId, vendors }: { exchangeRate: number; rfq: RFQ; selectedVendorId: string; vendors: VendorResponse[] }) {
   const showAcceptance = rfq.customerDecision === "partially_accepted" || rfq.customerDecision === "fully_accepted";
+  const curation = rfq.curation;
+  const selectedVendor = vendors.find((v) => v.vendorId === selectedVendorId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,16 +28,22 @@ function VendorComparisonSection({ rfq, selectedVendorId, vendors }: { rfq: RFQ;
             )}
           </div>
           <div className="flex gap-3">
-            {vendors.map((vendor) =>
-              vendor.deviceResponses[deviceIndex] ? (
+            {vendors.map((vendor) => {
+              if (!vendor.deviceResponses[deviceIndex]) return null;
+              const isSelected = vendor.vendorId === selectedVendorId;
+              const adminPrice = isSelected && curation && selectedVendor ? getAdminUnitPrice(curation, selectedVendor, deviceIndex) : undefined;
+              return (
                 <VendorDeviceResponseCard
                   key={vendor.vendorId}
+                  adminUnitPrice={adminPrice}
+                  customerCurrency={rfq.customerCurrency}
+                  exchangeRate={exchangeRate}
                   response={vendor.deviceResponses[deviceIndex]}
-                  selected={vendor.vendorId === selectedVendorId}
+                  selected={isSelected}
                   vendor={vendor}
                 />
-              ) : null,
-            )}
+              );
+            })}
           </div>
         </div>
       ))}

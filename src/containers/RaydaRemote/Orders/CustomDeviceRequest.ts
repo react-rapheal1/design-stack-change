@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 import { RFQDevice } from "./RFQDevice";
 import { RequestStatus } from "./RequestStatus";
 
@@ -12,5 +10,6 @@ interface CustomDeviceRequest {
   status: RequestStatus;
   createdAt?: string;
   expiresAt?: string;
+  vendorNote?: string;
 }
-export { CustomDeviceRequest };
+export type { CustomDeviceRequest };

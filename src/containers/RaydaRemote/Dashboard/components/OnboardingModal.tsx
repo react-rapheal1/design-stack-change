@@ -16,11 +16,17 @@ interface OnboardingModalProps {
 export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [businessName, setBusinessName] = useState("");
   const [importMethod, setImportMethod] = useState("");
-  const isImportStep = step === modalQuestions.length;
-  const currentQuestion = isImportStep ? null : modalQuestions[step];
+  const isBusinessNameStep = step === 0;
+  const isImportStep = step === modalQuestions.length + 1;
+  const currentQuestion = isBusinessNameStep || isImportStep ? null : modalQuestions[step - 1];
   const currentAnswer = currentQuestion ? (answers[currentQuestion.key] ?? "") : "";
-  const canContinue = isImportStep ? importMethod !== "" : currentAnswer !== "";
+  const canContinue = isBusinessNameStep
+    ? businessName.trim() !== ""
+    : isImportStep
+      ? importMethod !== ""
+      : currentAnswer !== "";
 
   function handleContinue() {
     if (!canContinue) return;
@@ -44,10 +50,13 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
           />
           <ProgressBar step={step} />
           <ModalBody
+            businessName={businessName}
             currentAnswer={currentAnswer}
             currentQuestion={currentQuestion}
             importMethod={importMethod}
+            isBusinessNameStep={isBusinessNameStep}
             isImportStep={isImportStep}
+            onBusinessNameChange={setBusinessName}
             onAnswerChange={(value) => setAnswers((items) => ({ ...items, [currentQuestion!.key]: value }))}
             onImportMethodChange={setImportMethod}
           />

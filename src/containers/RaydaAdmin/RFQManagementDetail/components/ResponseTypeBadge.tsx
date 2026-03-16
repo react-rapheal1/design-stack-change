@@ -1,7 +1,5 @@
-/* eslint-disable */
-// @ts-nocheck
 import { Badge } from "@/components/base/badges/badges";
-import { DeviceResponseType } from "../../shared";
+import type { DeviceResponseType } from "../../shared";
 
 function ResponseTypeBadge({ type }: { type: DeviceResponseType }) {
   const config: Record<DeviceResponseType, { label: string; color: "success" | "blue" | "error" }> = {

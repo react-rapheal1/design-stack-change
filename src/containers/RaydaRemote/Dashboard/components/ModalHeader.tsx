@@ -4,13 +4,26 @@ import { modalQuestions } from "../constants";
 interface ModalHeaderProps {
   currentQuestion?: string;
   hint?: string;
+  isBusinessNameStep: boolean;
   onSkip: () => void;
   step: number;
 }
 
-export function ModalHeader({ currentQuestion, hint, onSkip, step }: ModalHeaderProps) {
-  const totalSteps = modalQuestions.length + 1;
-  const isImportStep = step === modalQuestions.length;
+export function ModalHeader({ currentQuestion, hint, isBusinessNameStep, onSkip, step }: ModalHeaderProps) {
+  const totalSteps = modalQuestions.length + 2;
+  const isImportStep = step === modalQuestions.length + 1;
+
+  function getHeading() {
+    if (isBusinessNameStep) return "What's your business name?";
+    if (isImportStep) return "Add your employees to get started";
+    return currentQuestion;
+  }
+
+  function getHint() {
+    if (isBusinessNameStep) return "This helps us personalize your workspace.";
+    if (isImportStep) return "Choose how you'd like to bring your team into Rayda.";
+    return hint;
+  }
 
   function getHeading() {
     if (isImportStep) return "Add your employees to get started";
@@ -28,8 +41,8 @@ export function ModalHeader({ currentQuestion, hint, onSkip, step }: ModalHeader
         <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">
           Step {step + 1} of {totalSteps}
         </p>
-        <h2 className="mt-1 text-lg font-bold text-primary">{isImportStep ? "How would you like to build your asset inventory?" : currentQuestion}</h2>
-        <p className="mt-1 text-sm text-tertiary">{isImportStep ? "Choose the method that works best for your current setup." : hint}</p>
+        <h2 className="mt-1 text-lg font-bold text-primary">{getHeading()}</h2>
+        <p className="mt-1 text-sm text-tertiary">{getHint()}</p>
       </div>
       <button
         onClick={onSkip}

@@ -7,12 +7,13 @@
 - **Rayda Admin** for internal RFQ review and curation
 - **Remote Employees** for employee-facing order confirmation and profile flows
 
-## Current Runtime Model
+## Runtime Model
 
-This repository is now a **single Next.js application**.
+This repository is a **single Next.js application**.
 
-- There is **one server only**
-- All products are mounted under route prefixes inside the same app
+- There is **one server only** — all products are mounted under route prefixes inside the same app
+- The app runs on port **3000** in development and production
+- Docker exposes port **40298** internally
 
 ### Route Prefixes
 
@@ -44,6 +45,8 @@ This repository is now a **single Next.js application**.
 - `/remote-employees/order-summary`
 
 The canonical route definitions live in [src/lib/app-routes.ts](./src/lib/app-routes.ts).
+
+Legacy URLs (e.g. `/dashboard`, `/orders`, `/rfq-management`) are permanently redirected to their prefixed equivalents in [next.config.mjs](./next.config.mjs).
 
 ## Development Commands
 
@@ -82,6 +85,8 @@ Route segments stay URL-oriented and lowercase:
 src/app/rayda-remote/onboard-device/marketplace/page.tsx
 ```
 
+The root layout (`src/app/layout.tsx`) sets up IBM Plex Sans font, RouteProvider, and Theme wrapper.
+
 ### Container Architecture
 
 All product code lives in `src/containers`.
@@ -90,31 +95,55 @@ Top-level product folders are **PascalCase**:
 
 ```text
 src/containers/
+  Home/
   RaydaAdmin/
   RaydaRemote/
   VendorPortal/
   RemoteEmployees/
-  Home/
 ```
 
-Each feature folder is also **PascalCase**:
+#### RaydaAdmin Features
+
+```text
+src/containers/RaydaAdmin/
+  RFQManagement/          # RFQ dashboard with metrics, table, filters
+  RFQManagementDetail/    # Individual RFQ review & vendor curation
+```
+
+#### RaydaRemote Features
 
 ```text
 src/containers/RaydaRemote/
-  Dashboard/
-  Employees/
-  Equipment/
-  Marketplace/
-  OnboardDevice/
-  Onboarding/
-  OnboardingGoalOne/
-  OrderDetails/
-  Orders/
-  Signup/
-  Shared/
+  Dashboard/              # Overview metrics & quick actions
+  Employees/              # Employee table & HRIS integration
+  Equipment/              # Equipment inventory, CSV upload, self-report
+  Marketplace/            # Product browsing, custom requests
+  OnboardDevice/          # Country selection for device onboarding
+  Onboarding/             # Multi-step onboarding questionnaire
+  OnboardingGoalOne/      # AI-assisted inventory import mission
+  Orders/                 # Orders table & custom device requests
+  OrderDetails/           # Individual order with employee verification
+  Signup/                 # Registration form & email verification
+  Shared/                 # Cross-feature navigation & data
 ```
 
-Feature roots should stay clean. Internal files belong in subfolders such as:
+#### RemoteEmployees Features
+
+```text
+src/containers/RemoteEmployees/
+  Root/                   # Landing page
+  Overview/               # Employee profile & assets
+  OrderSummary/           # Order confirmation & delivery editing
+```
+
+#### VendorPortal
+
+```text
+src/containers/VendorPortal/
+  (single feature)        # RFQ response, order requests, sidebar layout
+```
+
+Feature roots should stay clean. Internal files belong in subfolders:
 
 ```text
 Feature/
@@ -133,12 +162,12 @@ Not every feature needs all subfolders, but **do not dump many subcomponents int
 
 Shared cross-product code belongs in:
 
-- `src/components`
-- `src/hooks`
-- `src/lib`
-- `src/providers`
-- `src/styles`
-- `src/utils`
+- `src/components` — UI component library (application, base, foundations, marketing, shared-assets)
+- `src/hooks` — `use-breakpoint`, `use-click-outside`, `use-clipboard`, `use-resize-observer`
+- `src/lib` — Route definitions (`app-routes.ts`)
+- `src/providers` — `router-provider.tsx`, `theme.tsx`
+- `src/styles` — `globals.css`, `theme.css`, `typography.css`
+- `src/utils` — `cx`, `is-react-component`, `notification-store`, `profile-store`, `toggle-selected-value`
 
 Do not copy shared primitives into product containers unless they are truly feature-specific.
 
@@ -276,19 +305,27 @@ export { default } from "@/containers/RaydaRemote/Marketplace";
 
 ## Tech Stack
 
-- Next.js 16
+- Next.js 16 (App Router, Turbopack, standalone output)
 - React 19
 - TypeScript
 - Tailwind CSS v4
 - React Aria Components
 - Untitled UI icons and country flags
+- Motion (animations)
+- next-themes (dark/light mode)
 
 ## Core Utilities
 
-- `@/utils/cx`
-- `@/utils/sortCx`
-- `@/utils/is-react-component`
-- `@/hooks/use-breakpoint`
+- `@/utils/cx` — class name merging (Tailwind-aware)
+- `@/utils/sortCx` — sorted class name merging (used by Prettier plugin)
+- `@/utils/is-react-component` — React component type detection
+- `@/hooks/use-breakpoint` — responsive breakpoint hook
+
+## Deployment
+
+- **Docker:** Multi-stage build (Node 22 → Alpine runtime), standalone output
+- **CI/CD:** GitHub Actions on push to `main` → Docker build → ECR push → SSM deploy → Slack notification
+- **Infrastructure:** AWS ECR + EC2 via SSM
 
 ## Guidance For Future Changes
 

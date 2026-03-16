@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "@untitledui/icons";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
@@ -14,6 +14,8 @@ import { isStageComplete } from "./isStageComplete";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
 import type { Answers } from "./types";
 
+const STORAGE_KEY = "rayda_onboarding";
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -22,6 +24,26 @@ export default function OnboardingPage() {
   const [showErrors, setShowErrors] = useState(false);
 
   const canContinue = isStageComplete(step, answers, selectedGoal);
+
+  // Restore progress from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const { step: savedStep, answers: savedAnswers, selectedGoal: savedGoal } = JSON.parse(saved);
+        if (typeof savedStep === "number") setStep(savedStep);
+        if (savedAnswers) setAnswers(savedAnswers);
+        if (savedGoal) setSelectedGoal(savedGoal);
+      }
+    } catch {}
+  }, []);
+
+  // Persist progress to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, answers, selectedGoal }));
+    } catch {}
+  }, [step, answers, selectedGoal]);
 
   function handleBack() {
     setShowErrors(false);
@@ -48,7 +70,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       <div className="hidden w-[420px] shrink-0 lg:block xl:w-[480px]">
-        <OnboardingSidePanel />
+        <OnboardingSidePanel step={step} />
       </div>
 
       <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -72,8 +94,10 @@ export default function OnboardingPage() {
               <QuestionsPage
                 stepIndex={step}
                 answers={answers}
+                showErrors={showErrors}
                 onAnswer={(key, value) => {
                   setAnswers((current) => ({ ...current, [key]: value }));
+                  setShowErrors(false);
                 }}
               />
             )}

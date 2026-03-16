@@ -2,7 +2,15 @@ import { Tabs } from "@/components/application/tabs/tabs";
 import { PANEL_TABS } from "../data";
 import type { PanelTab } from "../data";
 
-function HrisPanelTabs({ activeTab, onTabChange }: { activeTab: PanelTab; onTabChange: (value: PanelTab) => void }) {
+function HrisPanelTabs({
+  activeTab,
+  onTabChange,
+  disabledTabs = [],
+}: {
+  activeTab: PanelTab;
+  onTabChange: (value: PanelTab) => void;
+  disabledTabs?: PanelTab[];
+}) {
   return (
     <Tabs selectedKey={activeTab} onSelectionChange={(key) => onTabChange(key as PanelTab)} className="px-2">
       <Tabs.List type="underline" size="sm" items={[]}>

@@ -9,8 +9,8 @@ import { appRoutes } from "@/lib/app-routes";
 import { PhoneCountrySelect } from "./PhoneCountrySelect";
 
 interface FormState {
-  businessName: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
   phone: string;
   workEmail: string;
@@ -20,8 +20,8 @@ export function SignupForm() {
   const router = useRouter();
   const [phoneCountry, setPhoneCountry] = useState("us");
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<FormState>({ name: "", businessName: "", workEmail: "", phone: "", password: "" });
-  const isValid = formData.name.trim() && formData.businessName.trim() && formData.workEmail.trim() && formData.password.length >= 8;
+  const [formData, setFormData] = useState<FormState>({ firstName: "", lastName: "", workEmail: "", phone: "", password: "" });
+  const isValid = formData.firstName.trim() && formData.lastName.trim() && formData.workEmail.trim() && formData.password.length >= 8;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -31,14 +31,10 @@ export function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input size="md" label="Full name" placeholder="Alex Johnson" value={formData.name} onChange={(name) => setFormData((items) => ({ ...items, name }))} />
-      <Input
-        size="md"
-        label="Business name"
-        placeholder="Acme Inc."
-        value={formData.businessName}
-        onChange={(businessName) => setFormData((items) => ({ ...items, businessName }))}
-      />
+      <div className="flex gap-3">
+        <Input size="md" label="First Name" placeholder="Enter your first name" value={formData.firstName} onChange={(firstName) => setFormData((items) => ({ ...items, firstName }))} />
+        <Input size="md" label="Last Name" placeholder="Enter your last name" value={formData.lastName} onChange={(lastName) => setFormData((items) => ({ ...items, lastName }))} />
+      </div>
       <Input
         size="md"
         label="Work email"

@@ -62,9 +62,52 @@ export const importOptions: Array<{
   },
 ];
 
+export const employeeImportOptions: Array<{
+  key: string;
+  icon: IconComponent;
+  title: string;
+  description: string;
+  recommended: boolean;
+  tooltip: { title: string; body: string };
+}> = [
+  {
+    key: "hris",
+    icon: Link04,
+    title: "Connect HRIS",
+    description: "Auto-import from BambooHR, Workday, Rippling and more",
+    recommended: true,
+    tooltip: {
+      title: "Sync your HR system",
+      body: "Connecting your HRIS will automatically import your employee roster and keep it in sync.",
+    },
+  },
+  {
+    key: "csv",
+    icon: Upload01,
+    title: "Upload Employee CSV",
+    description: "Import your employee list from a spreadsheet",
+    recommended: false,
+    tooltip: {
+      title: "Download template here",
+      body: "Here you can download the CSV file used to import your employee information.",
+    },
+  },
+  {
+    key: "manual",
+    icon: UserPlus01,
+    title: "Add employee manually",
+    description: "Add employees one at a time with a simple form",
+    recommended: false,
+    tooltip: {
+      title: "Add employees one by one",
+      body: "Fill in each employee's details individually. Best for small teams or adding specific people.",
+    },
+  },
+];
+
 export const tourDestinations: Record<string, string> = {
   hris: `${appRoutes.raydaRemote.employees}?tour=hris`,
-  csv: `${appRoutes.raydaRemote.equipment}?tour=csv`,
-  manual: `${appRoutes.raydaRemote.equipment}?tour=manual`,
-  "self-report": `${appRoutes.raydaRemote.equipment}?tour=self-report`,
+  csv: `${appRoutes.raydaRemote.employees}?tour=csv`,
+  manual: `${appRoutes.raydaRemote.employees}?tour=manual`,
+  "self-report": `${appRoutes.raydaRemote.employees}?tour=self-report`,
 };
