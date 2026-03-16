@@ -1,5 +1,6 @@
 import { ChevronRight, ClipboardCheck, HomeLine } from "@untitledui/icons";
 import Link from "next/link";
+import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
 import { RFQ } from "../../shared";
 import { StatusBadge } from "./StatusBadge";
 
@@ -28,9 +29,7 @@ function RFQDetailHeader({ rfq }: { rfq: RFQ }) {
         </nav>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg border border-secondary bg-primary shadow-xs">
-              <ClipboardCheck className="size-5 text-fg-quaternary" />
-            </div>
+            <FeaturedIcon color="brand" icon={ClipboardCheck} theme="modern-neue" size="md" />
             <div>
               <h1 className="text-xl font-semibold text-primary sm:text-2xl">{rfq.id}</h1>
               <p className="text-sm text-tertiary">{rfq.company}</p>

@@ -1,14 +1,8 @@
-import { BarChart01, CurrencyDollar, Shield01, Users01, ZapFast } from "@untitledui/icons";
+import type { FC } from "react";
 
-const highlights = [
-  { icon: BarChart01, text: "Full asset visibility from day one" },
-  { icon: Users01, text: "Automated new hire provisioning" },
-  { icon: Shield01, text: "Compliance dashboards built-in" },
-  { icon: ZapFast, text: "AI resolves tickets before you see them" },
-  { icon: CurrencyDollar, text: "Track depreciation & cut hardware spend" },
-];
+type Highlight = { icon: FC<{ className?: string }>; text: string };
 
-function OnboardingHighlights() {
+function OnboardingHighlights({ highlights }: { highlights: Highlight[] }) {
   return (
     <div className="mt-8 flex flex-col gap-3">
       {highlights.map(({ icon: Icon, text }) => (

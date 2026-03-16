@@ -1,5 +1,7 @@
 import { FilterLines, Plus, SearchMd, Users01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { Badge } from "@/components/base/badges/badges";
+import { Avatar } from "@/components/base/avatar/avatar";
 import { cx } from "@/utils/cx";
 import type { Employee } from "../data";
 
@@ -19,13 +21,9 @@ function EmployeesTable({
       <div className="flex items-center justify-between border-b border-[#eaecf0] px-5 py-4">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-primary">Employees</p>
-          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
-            {employees.length} Employee{employees.length !== 1 ? "s" : ""}
-          </span>
+          <Badge size="sm" color="brand">{employees.length} Employee{employees.length !== 1 ? "s" : ""}</Badge>
           {employees.some((employee) => employee.flag) && (
-            <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600">
-              {employees.filter((employee) => employee.flag).length} flags
-            </span>
+            <Badge size="sm" color="error">{employees.filter((employee) => employee.flag).length} flags</Badge>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -91,9 +89,7 @@ function EmployeesRows({ employees }: { employees: Employee[] }) {
           )}
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7] text-xs font-semibold text-secondary">
-              {employee.initials}
-            </div>
+            <Avatar size="sm" initials={employee.initials} />
             <div>
               <p className="font-medium text-primary">{employee.name}</p>
               <p className="text-xs text-tertiary">{employee.role}</p>
@@ -104,7 +100,7 @@ function EmployeesRows({ employees }: { employees: Employee[] }) {
           <span className="text-tertiary">{employee.address}</span>
           <div className="flex items-center justify-between">
             <span className="text-tertiary">{employee.country}</span>
-            {employee.flag && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">{employee.flag}</span>}
+            {employee.flag && <Badge size="sm" color="error">{employee.flag}</Badge>}
           </div>
         </div>
       ))}

@@ -4,17 +4,17 @@ import { GOALS, goalColorMap } from "./goals";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
 
 function GoalSelectionPage({ selected, onSelect }: { selected: string; onSelect: (key: string) => void }) {
-  const meta = STEP_META[3];
+  const meta = STEP_META[4];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       <div>
-        <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">Step 4 of {TOTAL_STEPS} · Goal selection</p>
+        <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">Step 5 of {TOTAL_STEPS} · Goal selection</p>
         <h2 className="mt-2 text-2xl font-bold text-primary">{meta.heading}</h2>
         <p className="mt-1.5 text-base text-tertiary">{meta.sub}</p>
       </div>
 
-      <div className="-m-1 grid grid-cols-1 gap-2 p-1 sm:grid-cols-2">
+      <div className="-m-1 flex flex-col gap-6 p-1">
         {GOALS.map((goal) => {
           const isSelected = selected === goal.key;
           const colors = goalColorMap[goal.color];

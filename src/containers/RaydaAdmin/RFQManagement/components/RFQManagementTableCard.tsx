@@ -1,9 +1,9 @@
-import { PaginationCardDefault } from "@/components/application/pagination/pagination";
 import { TableCard } from "@/components/application/table/table";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
 import { defaultFilters } from "../../shared";
 import { RFQManagementTable } from "./RFQManagementTable";
 import { RFQManagementToolbar } from "./RFQManagementToolbar";
+import { TablePaginationFooter } from "./TablePaginationFooter";
 
 function RFQManagementTableCard({
   activeFilter,
@@ -12,9 +12,11 @@ function RFQManagementTableCard({
   filterButtonRef,
   filteredCount,
   filters,
+  itemsPerPage,
   mounted,
   onFilterChange,
   onPageChange,
+  onPageSizeChange,
   onSearchChange,
   onSortChange,
   onApplyFilters,
@@ -33,10 +35,12 @@ function RFQManagementTableCard({
   filterButtonRef: React.RefObject<HTMLButtonElement | null>;
   filteredCount: number;
   filters: import("../../shared").RequestFilters;
+  itemsPerPage: number;
   mounted: boolean;
   onApplyFilters: (filters: import("../../shared").RequestFilters) => void;
   onFilterChange: (key: React.Key) => void;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
   onSearchChange: (value: string) => void;
   onSortChange: (descriptor: { column: React.Key; direction: "ascending" | "descending" }) => void;
   paginatedRfqs: import("../../shared").RFQ[];
@@ -90,7 +94,14 @@ function RFQManagementTableCard({
             sortDescriptor={sortDescriptor}
           />
         )}
-        {totalPages > 1 && <PaginationCardDefault page={currentPage} total={totalPages} onPageChange={onPageChange} />}
+        <TablePaginationFooter
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          totalItems={filteredCount}
+          totalPages={totalPages}
+        />
       </TableCard.Root>
     </div>
   );

@@ -15,7 +15,9 @@ function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
       border: "border-[#e9eaeb]",
       bg: "bg-[#fafafa]",
       color: "text-[#535862]",
-      description: "This RFQ has expired without a response.",
+      description: rfq.sentAt
+        ? `Sent on ${formatDateTime(rfq.sentAt)}. Expired on ${formatDateTime(new Date(new Date(rfq.sentAt).getTime() + 5 * 24 * 3600000).toISOString())} after 5 days with no customer response.`
+        : "This RFQ has expired without a response.",
       icon: Clock,
       title: "Expired",
     },
@@ -47,7 +49,7 @@ function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
       border: "border-[#b2ddff]",
       bg: "bg-[#eff8ff]",
       color: "text-[#175cd3]",
-      description: `Curated response was sent on ${formatDateTime(rfq.sentAt!)}. Waiting for customer decision.`,
+      description: `Curated response was sent on ${rfq.sentAt ? formatDateTime(rfq.sentAt) : "—"}. Waiting for customer decision.`,
       icon: CheckCircle,
       title: "Response Sent to Customer",
     },

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "@untitledui/icons";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
 import { RaydaLogo } from "@/components/foundations/logo/rayda-logo";
+import { CompanyDetailsPage } from "./CompanyDetailsPage";
 import { GoalSelectionPage } from "./GoalSelectionPage";
 import { QuestionsPage } from "./QuestionsPage";
 import { OnboardingSidePanel } from "./components/OnboardingSidePanel";
@@ -13,38 +14,63 @@ import { isStageComplete } from "./isStageComplete";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
 import type { Answers } from "./types";
 
+const STORAGE_KEY = "rayda_onboarding";
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [selectedGoal, setSelectedGoal] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
 
   const canContinue = isStageComplete(step, answers, selectedGoal);
 
+  // Restore progress from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const { step: savedStep, answers: savedAnswers, selectedGoal: savedGoal } = JSON.parse(saved);
+        if (typeof savedStep === "number") setStep(savedStep);
+        if (savedAnswers) setAnswers(savedAnswers);
+        if (savedGoal) setSelectedGoal(savedGoal);
+      }
+    } catch {}
+  }, []);
+
+  // Persist progress to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, answers, selectedGoal }));
+    } catch {}
+  }, [step, answers, selectedGoal]);
+
   function handleBack() {
+    setShowErrors(false);
     if (step === 0) {
       router.push("/rayda-remote/signup");
       return;
     }
-
     setStep((current) => current - 1);
   }
 
   function handleNext() {
-    if (!canContinue) return;
-
+    if (!canContinue) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
     if (step < TOTAL_STEPS - 1) {
       setStep((current) => current + 1);
       return;
     }
-
     router.push("/rayda-remote/dashboard");
   }
 
   return (
     <div className="flex h-screen overflow-hidden">
       <div className="hidden w-[420px] shrink-0 lg:block xl:w-[480px]">
-        <OnboardingSidePanel />
+        <OnboardingSidePanel step={step} />
       </div>
 
       <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -68,21 +94,38 @@ export default function OnboardingPage() {
               <QuestionsPage
                 stepIndex={step}
                 answers={answers}
+                showErrors={showErrors}
                 onAnswer={(key, value) => {
                   setAnswers((current) => ({ ...current, [key]: value }));
+                  setShowErrors(false);
                 }}
               />
             )}
-            {step === 3 && <GoalSelectionPage selected={selectedGoal} onSelect={setSelectedGoal} />}
+            {step === 3 && (
+              <CompanyDetailsPage
+                answers={answers}
+                showErrors={showErrors}
+                onAnswer={(key, value) => {
+                  setAnswers((current) => ({ ...current, [key]: value }));
+                  setShowErrors(false);
+                }}
+              />
+            )}
+            {step === 4 && <GoalSelectionPage selected={selectedGoal} onSelect={setSelectedGoal} />}
           </div>
 
-          <div className="mt-4 flex shrink-0 items-center justify-between border-t border-[#eaecf0] pt-4">
-            <Button color="tertiary" size="md" iconLeading={ArrowLeft} onClick={handleBack}>
-              Back
-            </Button>
-            <Button size="md" iconTrailing={ArrowRight} onClick={handleNext} isDisabled={!canContinue}>
-              {step === 3 ? "Start mission" : "Continue"}
-            </Button>
+          <div className="mt-4 flex shrink-0 flex-col gap-2 border-t border-[#eaecf0] pt-4">
+            {showErrors && !canContinue && (
+              <p className="text-center text-xs text-error-primary">Please fill in all fields to continue.</p>
+            )}
+            <div className="flex items-center justify-between">
+              <Button color="tertiary" size="md" iconLeading={ArrowLeft} onClick={handleBack}>
+                Back
+              </Button>
+              <Button size="md" iconTrailing={ArrowRight} onClick={handleNext}>
+                {step === 4 ? "Start mission" : "Continue"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

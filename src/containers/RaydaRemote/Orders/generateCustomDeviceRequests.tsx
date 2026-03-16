@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 import { CustomDeviceRequest } from "./CustomDeviceRequest";
 import { DeviceResponseType } from "./DeviceResponseType";
 import { DeviceVendorResponse } from "./DeviceVendorResponse";
@@ -8,6 +6,17 @@ import { RequestStatus } from "./RequestStatus";
 import { alternativeDevices } from "./alternativeDevices";
 import { countries } from "./countries";
 import { rfqDeviceTemplates } from "./rfqDeviceTemplates";
+
+const vendorNotes = [
+  "Lead time 2-3 weeks. Bulk discount available for 10+ units.",
+  "Price valid for 30 days. Includes 1-year standard warranty.",
+  "Ships from regional warehouse, delivery within 5 business days.",
+  "Extended 3-year warranty available at additional cost.",
+  "Currently running a promotion — price includes free setup.",
+  "Limited stock, recommend confirming within 7 days.",
+  "Includes on-site installation and configuration.",
+  "Price reflects enterprise licensing. Volume pricing available.",
+];
 
 function generateCustomDeviceRequests(count: number): CustomDeviceRequest[] {
   const requests: CustomDeviceRequest[] = [];
@@ -87,7 +96,7 @@ function generateCustomDeviceRequests(count: number): CustomDeviceRequest[] {
     }
     const dayOffset = i * 2;
     const createdAt = `Jan ${(dayOffset % 28) + 1}, 2025`;
-    const expiresAt = `Jan ${((dayOffset + 3) % 28) + 1}, 2025`;
+    const expiresAt = `Jan ${((dayOffset + 5) % 28) + 1}, 2025`;
     requests.push({
       id: (baseId + i).toString(),
       devices,
@@ -97,6 +106,7 @@ function generateCustomDeviceRequests(count: number): CustomDeviceRequest[] {
       status,
       createdAt,
       expiresAt,
+      vendorNote: hasVendorResponse && i % 3 !== 0 ? vendorNotes[i % vendorNotes.length] : undefined,
     });
   }
   return requests;

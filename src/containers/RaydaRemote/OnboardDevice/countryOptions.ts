@@ -9,6 +9,7 @@ const countryLabelOverrides: Record<string, string> = {
   cg: "Congo (Republic)",
   ci: "Cote d'Ivoire",
   cv: "Cabo Verde",
+  ps: "Palestine",
   sz: "Eswatini",
   tl: "Timor-Leste",
   tr: "Türkiye",

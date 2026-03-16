@@ -3,12 +3,22 @@ import { ALL_QUESTION_STEPS } from "./questionSteps";
 import { STEP_META, TOTAL_STEPS } from "./stepMeta";
 import type { Answers } from "./types";
 
-function QuestionsPage({ stepIndex, answers, onAnswer }: { stepIndex: number; answers: Answers; onAnswer: (key: string, value: string | string[]) => void }) {
+function QuestionsPage({
+  stepIndex,
+  answers,
+  showErrors,
+  onAnswer,
+}: {
+  stepIndex: number;
+  answers: Answers;
+  showErrors: boolean;
+  onAnswer: (key: string, value: string | string[]) => void;
+}) {
   const meta = STEP_META[stepIndex];
   const questions = ALL_QUESTION_STEPS[stepIndex];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-10">
       <div>
         <p className="text-xs font-semibold tracking-widest text-brand-600 uppercase">
           Step {stepIndex + 1} of {TOTAL_STEPS} · {meta.label}
@@ -17,20 +27,25 @@ function QuestionsPage({ stepIndex, answers, onAnswer }: { stepIndex: number; an
         <p className="mt-1 text-sm text-tertiary">{meta.sub}</p>
       </div>
 
-      <div className="flex flex-col">
-        {questions.map((question, index) => (
-          <div key={question.key}>
-            {index > 0 && <div className="my-6 h-px bg-[#f2f4f7]" />}
-            <QuestionBlock
-              index={index}
-              question={question.question}
-              options={question.options}
-              multiSelect={question.multiSelect}
-              answer={answers[question.key] ?? (question.multiSelect ? [] : "")}
-              onAnswer={(value) => onAnswer(question.key, value)}
-            />
-          </div>
-        ))}
+
+<div className="flex flex-col gap-10">
+        {questions.map((question, index) => {
+          const answer = answers[question.key] ?? (question.multiSelect ? [] : "");
+          const hasAnswer = Array.isArray(answer) ? answer.length > 0 : answer !== "";
+          return (
+            <div key={question.key}>
+              <QuestionBlock
+                index={index}
+                question={question.question}
+                options={question.options}
+                multiSelect={question.multiSelect}
+                answer={answer}
+                showError={showErrors && !hasAnswer}
+                onAnswer={(value) => onAnswer(question.key, value)}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

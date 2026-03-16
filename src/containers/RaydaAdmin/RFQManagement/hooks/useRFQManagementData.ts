@@ -1,42 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { FilterTab, RFQ, RequestFilters, SortDirection, SortField, defaultFilters, mockRFQs } from "../../shared";
+import { FilterTab, RequestFilters, SortDirection, SortField, defaultFilters, mockRFQs } from "../../shared";
 import { PersistedState } from "../PersistedState";
 import { RFQ_STATE_KEY } from "../RFQ_STATE_KEY";
 import { readPersistedState } from "../readPersistedState";
+import { computeMetrics } from "./computeMetrics";
 
-const ITEMS_PER_PAGE = 10;
-
-function computeMetrics(period: string, rfqs: RFQ[]) {
-  const now = new Date(2026, 1, 20, 21, 0);
-  const periodMs: Record<string, number> = {
-    "24 hours": 24 * 3600000,
-    "7 days": 7 * 24 * 3600000,
-    "30 days": 30 * 24 * 3600000,
-    "12 months": 365 * 24 * 3600000,
-  };
-  const cutoff = new Date(now.getTime() - (periodMs[period] || periodMs["12 months"]));
-  const previousCutoff = new Date(cutoff.getTime() - (periodMs[period] || periodMs["12 months"]));
-  const inPeriod = rfqs.filter((rfq) => new Date(rfq.createdAt) >= cutoff);
-  const inPreviousPeriod = rfqs.filter((rfq) => {
-    const createdAt = new Date(rfq.createdAt);
-    return createdAt >= previousCutoff && createdAt < cutoff;
-  });
-
-  const calculate = (test: (rfq: RFQ) => boolean) => {
-    const current = inPeriod.filter(test).length;
-    const previous = inPreviousPeriod.filter(test).length;
-    const percent = previous === 0 ? (current > 0 ? 100 : 0) : Math.round(((current - previous) / previous) * 1000) / 10;
-    return { value: current, change: `${Math.abs(percent)}%`, up: percent >= 0 };
-  };
-
-  return {
-    sent: calculate((rfq) => rfq.status === "response_sent"),
-    accepted: calculate((rfq) => rfq.status === "fully_accepted" || rfq.status === "partially_accepted"),
-    rejected: calculate((rfq) => rfq.status === "customer_rejected"),
-  };
-}
+const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
 function useRFQManagementData() {
   const saved = typeof window === "undefined" ? null : readPersistedState();
@@ -46,6 +18,7 @@ function useRFQManagementData() {
   const [sortField, setSortField] = useState<SortField | null>(saved?.sort ?? null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(saved?.dir ?? "asc");
   const [currentPage, setCurrentPage] = useState(saved?.page ?? 1);
+  const [itemsPerPage, setItemsPerPage] = useState<PageSize>((saved?.pageSize as PageSize) ?? 10);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState<RequestFilters>(saved?.filters ?? defaultFilters);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
@@ -56,9 +29,9 @@ function useRFQManagementData() {
   );
 
   useEffect(() => {
-    const state: PersistedState = { q: searchQuery, tab: activeFilter, sort: sortField, dir: sortDirection, page: currentPage, filters };
+    const state: PersistedState = { q: searchQuery, tab: activeFilter, sort: sortField, dir: sortDirection, page: currentPage, filters, pageSize: itemsPerPage };
     sessionStorage.setItem(RFQ_STATE_KEY, JSON.stringify(state));
-  }, [activeFilter, currentPage, filters, searchQuery, sortDirection, sortField]);
+  }, [activeFilter, currentPage, filters, itemsPerPage, searchQuery, sortDirection, sortField]);
 
   useEffect(() => {
     const handleBeforeUnload = () => sessionStorage.removeItem(RFQ_STATE_KEY);
@@ -77,6 +50,7 @@ function useRFQManagementData() {
       const matchesSearch =
         rfq.id.toLowerCase().includes(query) ||
         rfq.company.toLowerCase().includes(query) ||
+        rfq.country.toLowerCase().includes(query) ||
         rfq.devices.some((device) => device.name.toLowerCase().includes(query)) ||
         rfq.vendorResponses.some((vendor) => vendor.vendorName.toLowerCase().includes(query));
       if (!matchesSearch) return false;
@@ -85,6 +59,7 @@ function useRFQManagementData() {
       return false;
     if (filters.countries.length > 0 && !filters.countries.includes(rfq.country)) return false;
     if (filters.statuses.length > 0 && !filters.statuses.includes(rfq.status)) return false;
+    if (filters.vendors?.length > 0 && !rfq.vendorResponses.some((v) => filters.vendors.includes(v.vendorName))) return false;
     return rfq.budget <= 0 || (rfq.budget >= filters.budgetRange[0] && rfq.budget <= filters.budgetRange[1]);
   });
 
@@ -97,7 +72,27 @@ function useRFQManagementData() {
     return 0;
   });
 
-  const totalPages = Math.ceil(sortedRfqs.length / ITEMS_PER_PAGE);
+  const filteredCount = sortedRfqs.length;
+
+  useEffect(() => {
+    if (filteredCount > 0 && filteredCount < itemsPerPage) {
+      const best = PAGE_SIZE_OPTIONS.find((s) => s >= filteredCount) ?? PAGE_SIZE_OPTIONS[0];
+      if (best !== itemsPerPage) {
+        setItemsPerPage(best);
+        setCurrentPage(1);
+      }
+    }
+  }, [filteredCount, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredCount / itemsPerPage);
+
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setItemsPerPage(size as PageSize);
+      setCurrentPage(1);
+    },
+    [],
+  );
 
   return {
     activeFilter,
@@ -106,10 +101,11 @@ function useRFQManagementData() {
     filterButtonRef,
     filteredRfqs,
     filters,
-    itemsPerPage: ITEMS_PER_PAGE,
+    itemsPerPage,
     metricPeriod,
     mounted,
-    paginatedRfqs: sortedRfqs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    pageSizeOptions: PAGE_SIZE_OPTIONS,
+    paginatedRfqs: sortedRfqs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
     searchQuery,
     setActiveFilter,
     setCurrentPage,
@@ -120,8 +116,10 @@ function useRFQManagementData() {
     showFilterModal,
     sortDescriptor: sortField ? ({ column: sortField, direction: sortDirection === "asc" ? "ascending" : "descending" } as const) : undefined,
     totalPages,
-    activeFilterCount: filters.countries.length + filters.statuses.length + (filters.budgetRange[0] > 0 || filters.budgetRange[1] < 100000 ? 1 : 0),
+    activeFilterCount:
+      filters.countries.length + filters.statuses.length + (filters.vendors?.length ?? 0) + (filters.budgetRange[0] > 0 || filters.budgetRange[1] < 100000 ? 1 : 0),
     handleColumnSort,
+    handlePageSizeChange,
   };
 }
 

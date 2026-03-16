@@ -33,7 +33,7 @@ function RFQManagementTable({
 }) {
   return (
     <div className="overflow-x-auto">
-      <Table className="min-w-[900px]" aria-label="RFQ management table" sortDescriptor={sortDescriptor} onSortChange={onSortChange}>
+      <Table className="min-w-[900px] [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap" aria-label="RFQ management table" sortDescriptor={sortDescriptor} onSortChange={onSortChange}>
         <Table.Header columns={columns}>
           {(column) => <Table.Head id={column.id} label={column.name} allowsSorting={column.allowsSorting} isRowHeader={column.id === "id"} />}
         </Table.Header>
@@ -67,7 +67,7 @@ function RFQManagementTable({
               <Table.Cell>
                 <DeviceCountDisplay devices={rfq.devices} />
               </Table.Cell>
-              <Table.Cell className="text-primary">{rfq.budget > 0 ? formatCurrency(rfq.budget) : <span className="text-tertiary">—</span>}</Table.Cell>
+              <Table.Cell className="text-primary">{rfq.budget > 0 ? formatCurrency(rfq.budget, rfq.customerCurrency) : <span className="text-tertiary">—</span>}</Table.Cell>
               <Table.Cell>
                 <div className="flex items-center gap-1.5">
                   <CountryFlag country={rfq.country} />

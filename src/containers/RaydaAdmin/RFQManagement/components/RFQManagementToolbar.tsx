@@ -52,11 +52,11 @@ function RFQManagementToolbar({
         </Select>
       </div>
       <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-        <div className="w-full md:w-56">
+        <div className="w-full md:w-72">
           <Input
             size="sm"
             icon={SearchLg}
-            placeholder="Search..."
+            placeholder="Search"
             value={searchQuery}
             onChange={(value) => {
               onSearchChange(value);

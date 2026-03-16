@@ -51,16 +51,16 @@ export default function RFQDetailPage() {
             <VendorQuotesSection onSelectVendor={state.setSelectedVendorId} rfq={state.rfq} selectedVendorId={state.selectedVendorId} />
           </div>
         </div>
-        {!isPending && (
+        {!isPending && !isReadOnly && (
           <RFQDetailFooter
-            canCurate={!!state.selectedVendorId && !isReadOnly && !isSent}
+            canCurate={!!state.selectedVendorId && !isSent}
             onBack={() => router.push("/rayda-admin/rfq-management")}
             onCurate={state.handleCurate}
             onRecall={state.handleRecall}
-            showRecall={!isReadOnly && isSent}
+            showRecall={isSent}
           />
         )}
-        {isReadOnly && (
+        {(isPending || isReadOnly) && (
           <div className="sticky bottom-0 border-t border-secondary bg-primary py-4 page-px">
             <Button size="md" color="secondary" onClick={() => router.push("/rayda-admin/rfq-management")}>
               Back to RFQs
