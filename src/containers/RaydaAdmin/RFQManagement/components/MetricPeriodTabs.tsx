@@ -1,32 +1,56 @@
-import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/button-group";
-import { Select } from "@/components/base/select/select";
+"use client";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
 import { periodTabs } from "../periodTabs";
 
-function MetricPeriodTabs({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) {
+interface MetricPeriodTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+function MetricPeriodTabs({ activeTab, onTabChange }: MetricPeriodTabsProps) {
   const isMd = useBreakpoint("md");
 
   if (!isMd) {
     return (
-      <Select
-        size="sm"
-        selectedKey={activeTab}
-        onSelectionChange={(key) => onTabChange(key as string)}
-        items={periodTabs.map((tab) => ({ id: tab, label: tab }))}
-      >
-        {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+      <Select value={activeTab} onValueChange={onTabChange}>
+        <SelectTrigger className="h-9 w-[160px]">
+          <SelectValue placeholder="Select period" />
+        </SelectTrigger>
+        <SelectContent>
+          {periodTabs.map((tab) => (
+            <SelectItem key={tab} value={tab}>
+              {tab}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
     );
   }
 
   return (
-    <ButtonGroup size="sm">
+    <ToggleGroup
+      type="single"
+      value={activeTab}
+      onValueChange={(value) => {
+        if (value) onTabChange(value);
+      }}
+      size="sm"
+    >
       {periodTabs.map((tab) => (
-        <ButtonGroupItem key={tab} isSelected={activeTab === tab} onClick={() => onTabChange(tab)}>
+        <ToggleGroupItem key={tab} value={tab}>
           {tab}
-        </ButtonGroupItem>
+        </ToggleGroupItem>
       ))}
-    </ButtonGroup>
+    </ToggleGroup>
   );
 }
 

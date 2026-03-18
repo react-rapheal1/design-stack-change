@@ -1,10 +1,35 @@
-import { FilterLines, SearchLg } from "@untitledui/icons";
-import { Tabs } from "@/components/application/tabs/tabs";
-import { Input } from "@/components/base/input/input";
-import { Select } from "@/components/base/select/select";
-import { cx } from "@/utils/cx";
+"use client";
+
+import { Filter, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import type { RequestFilters } from "../../shared";
 import { filterTabs } from "../../shared";
 import { FilterDropdown } from "./FilterDropdown";
+
+interface RFQManagementToolbarProps {
+  activeFilter: string;
+  activeFilterCount: number;
+  filterButtonRef: React.RefObject<HTMLButtonElement | null>;
+  filters: RequestFilters;
+  onApplyFilters: (filters: RequestFilters) => void;
+  onFilterChange: (key: React.Key) => void;
+  onSearchChange: (value: string) => void;
+  resultCount: number;
+  searchQuery: string;
+  setCurrentPage: (page: number) => void;
+  setShowFilterModal: (open: boolean) => void;
+  showFilterModal: boolean;
+}
 
 function RFQManagementToolbar({
   activeFilter,
@@ -19,66 +44,72 @@ function RFQManagementToolbar({
   setCurrentPage,
   setShowFilterModal,
   showFilterModal,
-}: {
-  activeFilter: string;
-  activeFilterCount: number;
-  filterButtonRef: React.RefObject<HTMLButtonElement | null>;
-  filters: import("../../shared").RequestFilters;
-  onApplyFilters: (filters: import("../../shared").RequestFilters) => void;
-  onFilterChange: (key: React.Key) => void;
-  onSearchChange: (value: string) => void;
-  resultCount: number;
-  searchQuery: string;
-  setCurrentPage: (page: number) => void;
-  setShowFilterModal: (open: boolean) => void;
-  showFilterModal: boolean;
-}) {
+}: RFQManagementToolbarProps) {
   return (
     <div className="flex flex-col items-start gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between">
-      <Tabs selectedKey={activeFilter} onSelectionChange={onFilterChange} className="hidden w-max md:block">
-        <Tabs.List type="button-minimal" items={filterTabs}>
-          {(tab) => <Tabs.Item {...tab} />}
-        </Tabs.List>
+      <Tabs
+        value={activeFilter}
+        onValueChange={(value) => onFilterChange(value)}
+        className="hidden w-max md:block"
+      >
+        <TabsList>
+          {filterTabs.map((tab) => (
+            <TabsTrigger key={tab.id} value={tab.id}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
       </Tabs>
+
       <div className="w-full md:hidden">
         <Select
-          size="sm"
-          placeholder="Filter by status"
-          selectedKey={activeFilter}
-          onSelectionChange={(key) => onFilterChange(key as React.Key)}
-          items={filterTabs}
+          value={activeFilter}
+          onValueChange={(value) => onFilterChange(value)}
         >
-          {(tab) => <Select.Item id={tab.id}>{tab.label}</Select.Item>}
+          <SelectTrigger className="h-9">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            {filterTabs.map((tab) => (
+              <SelectItem key={tab.id} value={tab.id}>
+                {tab.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
+
       <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-        <div className="w-full md:w-72">
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input
-            size="sm"
-            icon={SearchLg}
+            className="h-10 pl-10"
             placeholder="Search"
             value={searchQuery}
-            onChange={(value) => {
-              onSearchChange(value);
+            onChange={(e) => {
+              onSearchChange(e.target.value);
               setCurrentPage(1);
             }}
           />
         </div>
         <div>
-          <button
+          <Button
             ref={filterButtonRef}
-            type="button"
+            variant="secondary"
             onClick={() => setShowFilterModal(!showFilterModal)}
-            className={cx(
-              "flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-3.5 text-sm font-semibold transition-colors md:w-auto",
-              showFilterModal ? "border-[#0948b5] bg-[#eff8ff] text-[#0948b5]" : "border-[#e9eaeb] bg-white text-[#414651] hover:bg-[#fafafa]",
+            className={cn(
+              "h-10 w-full gap-2 md:w-auto",
+              showFilterModal && "border-brand-500 bg-brand-50 text-brand-600"
             )}
           >
-            <FilterLines className="size-5" /> Filters
+            <Filter className="size-5" />
+            Filters
             {activeFilterCount > 0 && (
-              <span className="flex size-5 items-center justify-center rounded-full bg-[#0948b5] text-xs font-medium text-white">{activeFilterCount}</span>
+              <span className="flex size-5 items-center justify-center rounded-full bg-brand-600 text-xs font-medium text-white">
+                {activeFilterCount}
+              </span>
             )}
-          </button>
+          </Button>
           <FilterDropdown
             isOpen={showFilterModal}
             onClose={() => setShowFilterModal(false)}

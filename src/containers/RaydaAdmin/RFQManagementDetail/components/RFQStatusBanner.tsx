@@ -1,8 +1,22 @@
-import { AlertCircle, CheckCircle, Clock, XCircle } from "@untitledui/icons";
-import { RFQ, formatDateTime } from "../../shared";
+import { AlertCircle, CheckCircle, Clock, XCircle } from "lucide-react";
+import type { RFQ } from "../../shared";
+import { formatDateTime } from "../../shared";
 
-function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
-  const bannerMap = {
+interface RFQStatusBannerProps {
+  rfq: RFQ;
+}
+
+interface BannerConfig {
+  border: string;
+  bg: string;
+  color: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+}
+
+function RFQStatusBanner({ rfq }: RFQStatusBannerProps) {
+  const bannerMap: Record<string, BannerConfig | null> = {
     customer_rejected: {
       border: "border-[#fecdca]",
       bg: "bg-[#fef3f2]",
@@ -16,7 +30,11 @@ function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
       bg: "bg-[#fafafa]",
       color: "text-[#535862]",
       description: rfq.sentAt
-        ? `Sent on ${formatDateTime(rfq.sentAt)}. Expired on ${formatDateTime(new Date(new Date(rfq.sentAt).getTime() + 5 * 24 * 3600000).toISOString())} after 5 days with no customer response.`
+        ? `Sent on ${formatDateTime(rfq.sentAt)}. Expired on ${formatDateTime(
+            new Date(
+              new Date(rfq.sentAt).getTime() + 5 * 24 * 3600000
+            ).toISOString()
+          )} after 5 days with no customer response.`
         : "This RFQ has expired without a response.",
       icon: Clock,
       title: "Expired",
@@ -33,7 +51,9 @@ function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
       border: "border-[#d6bbfb]",
       bg: "bg-[#f9f5ff]",
       color: "text-[#6941c6]",
-      description: `The customer accepted ${rfq.acceptedDevices?.filter(Boolean).length} of ${rfq.devices.length} devices in this quote.`,
+      description: `The customer accepted ${
+        rfq.acceptedDevices?.filter(Boolean).length
+      } of ${rfq.devices.length} devices in this quote.`,
       icon: AlertCircle,
       title: "Partially Accepted",
     },
@@ -49,19 +69,23 @@ function RFQStatusBanner({ rfq }: { rfq: RFQ }) {
       border: "border-[#b2ddff]",
       bg: "bg-[#eff8ff]",
       color: "text-[#175cd3]",
-      description: `Curated response was sent on ${rfq.sentAt ? formatDateTime(rfq.sentAt) : "—"}. Waiting for customer decision.`,
+      description: `Curated response was sent on ${
+        rfq.sentAt ? formatDateTime(rfq.sentAt) : "—"
+      }. Waiting for customer decision.`,
       icon: CheckCircle,
       title: "Response Sent to Customer",
     },
     vendors_responded: null,
-  } as const;
+  };
 
   const banner = bannerMap[rfq.status];
   if (!banner) return null;
   const Icon = banner.icon;
 
   return (
-    <div className={`flex items-start gap-3 rounded-lg border p-4 ${banner.border} ${banner.bg}`}>
+    <div
+      className={`flex items-start gap-3 rounded-lg border p-4 ${banner.border} ${banner.bg}`}
+    >
       <Icon className={`size-5 shrink-0 ${banner.color}`} />
       <div className={`flex flex-col gap-1 ${banner.color}`}>
         <span className="text-sm font-semibold">{banner.title}</span>

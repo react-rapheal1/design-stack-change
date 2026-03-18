@@ -1,11 +1,29 @@
-import { Badge } from "@/components/base/badges/badges";
+import { Badge } from "@/components/ui/badge";
 import type { RFQStatus } from "../../shared";
 import { getStatusConfig } from "../../shared";
 
-function StatusBadge({ status }: { status: RFQStatus }) {
+interface StatusBadgeProps {
+  status: RFQStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const config = getStatusConfig(status);
+
+  const variantMap: Record<string, "default" | "success" | "warning" | "error" | "gray" | "brand"> = {
+    success: "success",
+    warning: "warning",
+    error: "error",
+    gray: "gray",
+    brand: "brand",
+    blue: "brand",
+    orange: "warning",
+    "blue-light": "brand",
+  };
+
+  const variant = variantMap[config.color] || "gray";
+
   return (
-    <Badge size="sm" type="pill-color" color={config.color as never}>
+    <Badge variant={variant} size="sm">
       {config.label}
     </Badge>
   );

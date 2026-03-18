@@ -1,13 +1,31 @@
+"use client";
+
 import Link from "next/link";
-import { EmptyState } from "@/components/application/empty-state/empty-state";
-import { Table } from "@/components/application/table/table";
-import { Button } from "@/components/base/buttons/button";
+import { ArrowDown, ArrowUp, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FeaturedIcon } from "@/components/ui/featured-icon";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import type { RFQ, SortField } from "../../shared";
 import { formatCurrency } from "../../shared";
 import { CountryFlag } from "./CountryFlag";
 import { DeviceCountDisplay } from "./DeviceCountDisplay";
 import { StatusBadge } from "./StatusBadge";
 
-const columns = [
+interface Column {
+  id: string;
+  name: string;
+  allowsSorting: boolean;
+}
+
+const columns: Column[] = [
   { id: "id", name: "RFQ ID", allowsSorting: true },
   { id: "company", name: "Company", allowsSorting: true },
   { id: "devices", name: "Device(s)", allowsSorting: false },
@@ -16,7 +34,20 @@ const columns = [
   { id: "vendors", name: "Vendor Quotes", allowsSorting: false },
   { id: "status", name: "Status", allowsSorting: false },
   { id: "actions", name: "", allowsSorting: false },
-] as const;
+];
+
+interface SortDescriptor {
+  column: SortField;
+  direction: "ascending" | "descending";
+}
+
+interface RFQManagementTableProps {
+  onClearFilters: () => void;
+  onSortChange: (descriptor: { column: React.Key; direction: "ascending" | "descending" }) => void;
+  rfqs: RFQ[];
+  searchQuery: string;
+  sortDescriptor?: SortDescriptor;
+}
 
 function RFQManagementTable({
   onClearFilters,
@@ -24,79 +55,123 @@ function RFQManagementTable({
   rfqs,
   searchQuery,
   sortDescriptor,
-}: {
-  onClearFilters: () => void;
-  onSortChange: (descriptor: { column: React.Key; direction: "ascending" | "descending" }) => void;
-  rfqs: import("../../shared").RFQ[];
-  searchQuery: string;
-  sortDescriptor?: { column: import("../../shared").SortField; direction: "ascending" | "descending" };
-}) {
+}: RFQManagementTableProps) {
+  const handleSort = (columnId: string) => {
+    const column = columns.find((c) => c.id === columnId);
+    if (!column?.allowsSorting) return;
+
+    const newDirection =
+      sortDescriptor?.column === columnId && sortDescriptor.direction === "ascending"
+        ? "descending"
+        : "ascending";
+
+    onSortChange({ column: columnId, direction: newDirection });
+  };
+
+  if (rfqs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center px-8 py-24">
+        <FeaturedIcon
+          icon={<Search />}
+          color="gray"
+          size="lg"
+          className="mb-4"
+        />
+        <h3 className="mb-1 text-lg font-semibold text-gray-900">
+          No requests found
+        </h3>
+        <p className="mb-6 text-center text-sm text-gray-500">
+          {searchQuery
+            ? `Your search "${searchQuery}" did not match any RFQs.`
+            : "No RFQs match your current filters."}
+        </p>
+        <Button variant="secondary" onClick={onClearFilters}>
+          Clear filters
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
-      <Table className="min-w-[900px] [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap" aria-label="RFQ management table" sortDescriptor={sortDescriptor} onSortChange={onSortChange}>
-        <Table.Header columns={columns}>
-          {(column) => <Table.Head id={column.id} label={column.name} allowsSorting={column.allowsSorting} isRowHeader={column.id === "id"} />}
-        </Table.Header>
-        <Table.Body
-          items={rfqs}
-          renderEmptyState={() => (
-            <div className="flex items-center justify-center overflow-hidden px-8 py-24">
-              <EmptyState size="sm">
-                <EmptyState.Header pattern="circle">
-                  <EmptyState.FeaturedIcon color="gray" theme="modern-neue" />
-                </EmptyState.Header>
-                <EmptyState.Content>
-                  <EmptyState.Title>No requests found</EmptyState.Title>
-                  <EmptyState.Description>
-                    {searchQuery ? `Your search "${searchQuery}" did not match any RFQs.` : "No RFQs match your current filters."}
-                  </EmptyState.Description>
-                </EmptyState.Content>
-                <EmptyState.Footer>
-                  <Button size="md" color="secondary" onClick={onClearFilters}>
-                    Clear filters
-                  </Button>
-                </EmptyState.Footer>
-              </EmptyState>
-            </div>
-          )}
-        >
-          {(rfq) => (
-            <Table.Row key={rfq.id} id={rfq.id} className="transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2">
-              <Table.Cell className="font-medium text-primary">{rfq.id}</Table.Cell>
-              <Table.Cell className="text-primary">{rfq.company}</Table.Cell>
-              <Table.Cell>
+      <Table className="min-w-[900px]">
+        <TableHeader>
+          <TableRow>
+            {columns.map((column) => (
+              <TableHead
+                key={column.id}
+                className={cn(
+                  "whitespace-nowrap",
+                  column.allowsSorting && "cursor-pointer select-none"
+                )}
+                onClick={() => column.allowsSorting && handleSort(column.id)}
+              >
+                <div className="flex items-center gap-1">
+                  {column.name}
+                  {column.allowsSorting && sortDescriptor?.column === column.id && (
+                    sortDescriptor.direction === "ascending" ? (
+                      <ArrowUp className="size-4" />
+                    ) : (
+                      <ArrowDown className="size-4" />
+                    )
+                  )}
+                </div>
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rfqs.map((rfq) => (
+            <TableRow
+              key={rfq.id}
+              className="transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2"
+            >
+              <TableCell className="whitespace-nowrap font-medium text-gray-900">
+                {rfq.id}
+              </TableCell>
+              <TableCell className="whitespace-nowrap text-gray-900">
+                {rfq.company}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <DeviceCountDisplay devices={rfq.devices} />
-              </Table.Cell>
-              <Table.Cell className="text-primary">{rfq.budget > 0 ? formatCurrency(rfq.budget, rfq.customerCurrency) : <span className="text-tertiary">—</span>}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell className="whitespace-nowrap text-gray-900">
+                {rfq.budget > 0 ? (
+                  formatCurrency(rfq.budget, rfq.customerCurrency)
+                ) : (
+                  <span className="text-gray-500">—</span>
+                )}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <div className="flex items-center gap-1.5">
                   <CountryFlag country={rfq.country} />
-                  <span className="text-secondary">{rfq.country}</span>
+                  <span className="text-gray-600">{rfq.country}</span>
                 </div>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 {rfq.vendorResponses.length > 0 ? (
-                  <span className="text-sm text-primary">
-                    {rfq.vendorResponses.length} vendor{rfq.vendorResponses.length !== 1 ? "s" : ""}
+                  <span className="text-sm text-gray-900">
+                    {rfq.vendorResponses.length} vendor
+                    {rfq.vendorResponses.length !== 1 ? "s" : ""}
                   </span>
                 ) : (
-                  <span className="text-sm text-tertiary">—</span>
+                  <span className="text-sm text-gray-500">—</span>
                 )}
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <StatusBadge status={rfq.status} />
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <Link
                   href={`/rayda-admin/rfq-management/${rfq.id}`}
-                  className="text-sm font-semibold text-brand-secondary transition-colors hover:text-brand-secondary_hover hover:underline"
+                  className="text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700 hover:underline"
                 >
                   {rfq.status === "vendors_responded" ? "Review" : "View"}
                 </Link>
-              </Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </div>
   );
